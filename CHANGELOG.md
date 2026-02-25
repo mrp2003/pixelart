@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.21](https://github.com/mrp2003/pixelart/compare/v0.0.20...v0.0.21) (2026-02-25)
+
+
+### Features
+
+* **ui:** redesign template modal and zoom controls, fix export scaling ([b699129](https://github.com/mrp2003/pixelart/commit/b6991294303c52590fee46371c7388b46e1be69e))
+
 ### [0.0.20](https://github.com/mrp2003/pixelart/compare/v0.0.19...v0.0.20) (2026-02-25)
 
 
