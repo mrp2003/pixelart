@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.8](https://github.com/mrp2003/pixelart/compare/v0.0.7...v0.0.8) (2026-02-25)
+
+
+### Bug Fixes
+
+* **ui:** replace emoji icons with proper SVG icons in template card ([f2245e0](https://github.com/mrp2003/pixelart/commit/f2245e09afef2ce8792d031b7578c4a636ad9aeb))
+
 ### [0.0.7](https://github.com/mrp2003/pixelart/compare/v0.0.6...v0.0.7) (2026-02-25)
 
 
