@@ -9,6 +9,7 @@ class PixelArtEditor {
         this.currentColor = '#000000';
         this.isDrawing = false;
         this.showTemplate = true;
+        this.showGrid = false;
         
         this.grid = [];
         this.template = this.loadTemplate();
@@ -70,6 +71,7 @@ class PixelArtEditor {
         document.getElementById('exportBtn').addEventListener('click', () => this.exportPNG());
         document.getElementById('resizeBtn').addEventListener('click', () => this.resizeGrid());
         document.getElementById('toggleTemplateBtn').addEventListener('click', () => this.toggleTemplate());
+        document.getElementById('toggleGridBtn').addEventListener('click', () => this.toggleGrid());
         
         // Canvas mouse events
         this.canvas.addEventListener('mousedown', (e) => this.startDrawing(e));
@@ -141,34 +143,39 @@ class PixelArtEditor {
             this.renderTemplate();
         }
         
-        // Draw grid lines
-        this.ctx.strokeStyle = '#e0e0e0';
-        this.ctx.lineWidth = 1;
-        
-        for (let i = 0; i <= this.gridWidth; i++) {
-            this.ctx.beginPath();
-            this.ctx.moveTo(i * this.pixelSize, 0);
-            this.ctx.lineTo(i * this.pixelSize, this.canvas.height);
-            this.ctx.stroke();
-        }
-        
-        for (let i = 0; i <= this.gridHeight; i++) {
-            this.ctx.beginPath();
-            this.ctx.moveTo(0, i * this.pixelSize);
-            this.ctx.lineTo(this.canvas.width, i * this.pixelSize);
-            this.ctx.stroke();
+        // Draw grid lines (if enabled)
+        if (this.showGrid) {
+            this.ctx.strokeStyle = '#e0e0e0';
+            this.ctx.lineWidth = 1;
+            
+            for (let i = 0; i <= this.gridWidth; i++) {
+                this.ctx.beginPath();
+                this.ctx.moveTo(i * this.pixelSize, 0);
+                this.ctx.lineTo(i * this.pixelSize, this.canvas.height);
+                this.ctx.stroke();
+            }
+            
+            for (let i = 0; i <= this.gridHeight; i++) {
+                this.ctx.beginPath();
+                this.ctx.moveTo(0, i * this.pixelSize);
+                this.ctx.lineTo(this.canvas.width, i * this.pixelSize);
+                this.ctx.stroke();
+            }
         }
         
         // Draw pixels
+        const padding = this.showGrid ? 1 : 0;
+        const size = this.showGrid ? this.pixelSize - 2 : this.pixelSize;
+        
         for (let y = 0; y < this.gridHeight; y++) {
             for (let x = 0; x < this.gridWidth; x++) {
                 if (this.grid[y][x]) {
                     this.ctx.fillStyle = this.grid[y][x];
                     this.ctx.fillRect(
-                        x * this.pixelSize + 1,
-                        y * this.pixelSize + 1,
-                        this.pixelSize - 2,
-                        this.pixelSize - 2
+                        x * this.pixelSize + padding,
+                        y * this.pixelSize + padding,
+                        size,
+                        size
                     );
                 }
             }
@@ -177,15 +184,17 @@ class PixelArtEditor {
     
     renderTemplate() {
         this.ctx.fillStyle = '#000000';
+        const padding = this.showGrid ? 1 : 0;
+        const size = this.showGrid ? this.pixelSize - 2 : this.pixelSize;
         
         Object.values(this.template).forEach(part => {
             part.forEach(([row, col]) => {
                 if (row < this.gridHeight && col < this.gridWidth) {
                     this.ctx.fillRect(
-                        col * this.pixelSize + 1,
-                        row * this.pixelSize + 1,
-                        this.pixelSize - 2,
-                        this.pixelSize - 2
+                        col * this.pixelSize + padding,
+                        row * this.pixelSize + padding,
+                        size,
+                        size
                     );
                 }
             });
@@ -196,6 +205,13 @@ class PixelArtEditor {
         this.showTemplate = !this.showTemplate;
         const btn = document.getElementById('toggleTemplateBtn');
         btn.textContent = this.showTemplate ? 'Hide Template' : 'Show Template';
+        this.render();
+    }
+    
+    toggleGrid() {
+        this.showGrid = !this.showGrid;
+        const btn = document.getElementById('toggleGridBtn');
+        btn.textContent = this.showGrid ? 'Hide Grid' : 'Show Grid';
         this.render();
     }
     
