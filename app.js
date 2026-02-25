@@ -69,9 +69,7 @@ class PixelArtEditor {
     
     setupCanvas() {
         const resizeCanvas = () => {
-            const sidebar = document.querySelector('.sidebar');
-            const sidebarWidth = sidebar.classList.contains('collapsed') ? 40 : 280;
-            this.canvas.width = window.innerWidth - sidebarWidth;
+            this.canvas.width = window.innerWidth - 280;
             this.canvas.height = window.innerHeight;
             this.render();
         };
@@ -109,12 +107,6 @@ class PixelArtEditor {
     }
     
     setupEventListeners() {
-        // Sidebar toggle
-        document.getElementById('sidebarToggle').addEventListener('click', () => {
-            document.getElementById('sidebar').classList.toggle('collapsed');
-            setTimeout(() => this.setupCanvas(), 300);
-        });
-        
         // Tool buttons
         document.getElementById('penTool').addEventListener('click', () => this.setTool('pen'));
         document.getElementById('eraserTool').addEventListener('click', () => this.setTool('eraser'));
