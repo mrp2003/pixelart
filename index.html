@@ -19,12 +19,21 @@
             <button id="eraserTool" class="icon-btn" title="Eraser (E)">
                 <i class="fi fi-rs-eraser"></i>
             </button>
-            <div class="color-section">
-                <button id="colorTool" class="icon-btn color-btn" title="Color Picker">
-                    <div id="currentColorIndicator" class="current-color-indicator"></div>
+            <button id="colorTool" class="icon-btn" title="Color Picker">
+                <i class="fi fi-rs-fill"></i>
+                <div id="currentColorIndicator" class="current-color-dot"></div>
+            </button>
+            
+            <!-- Color Picker Modal -->
+            <div id="colorPickerModal" class="color-picker-modal">
+                <div class="color-picker-section">
+                    <label>Pick Color</label>
                     <input type="color" id="colorPicker" value="#000000">
-                </button>
-                <div id="recentColors" class="recent-colors"></div>
+                </div>
+                <div class="recent-colors-section">
+                    <label>Recent Colors</label>
+                    <div id="recentColors" class="recent-colors"></div>
+                </div>
             </div>
             <button id="panTool" class="icon-btn" title="Pan (Space)">
                 <i class="fi fi-rs-compress-alt"></i>

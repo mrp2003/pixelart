@@ -121,6 +121,12 @@ class PixelArtEditor {
         document.getElementById('eraserTool').addEventListener('click', () => this.setTool('eraser'));
         document.getElementById('panTool').addEventListener('click', () => this.setTool('pan'));
         
+        // Color tool button
+        document.getElementById('colorTool').addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.toggleColorPicker();
+        });
+        
         // Color picker
         document.getElementById('colorPicker').addEventListener('input', (e) => {
             this.setColor(e.target.value);
@@ -129,6 +135,15 @@ class PixelArtEditor {
         document.getElementById('colorPicker').addEventListener('change', (e) => {
             this.addToRecentColors(e.target.value);
             this.saveToLocalStorage();
+        });
+        
+        // Close color picker when clicking outside
+        document.addEventListener('click', (e) => {
+            const modal = document.getElementById('colorPickerModal');
+            const colorTool = document.getElementById('colorTool');
+            if (!modal.contains(e.target) && !colorTool.contains(e.target)) {
+                this.closeColorPicker();
+            }
         });
         
         // Zoom slider
@@ -312,6 +327,16 @@ class PixelArtEditor {
         if (indicator) {
             indicator.style.backgroundColor = this.currentColor;
         }
+    }
+    
+    toggleColorPicker() {
+        const modal = document.getElementById('colorPickerModal');
+        modal.classList.toggle('active');
+    }
+    
+    closeColorPicker() {
+        const modal = document.getElementById('colorPickerModal');
+        modal.classList.remove('active');
     }
     
     screenToGrid(screenX, screenY) {
@@ -763,6 +788,7 @@ class PixelArtEditor {
     }
     
     openTemplateModal() {
+        this.closeColorPicker();
         document.getElementById('templateModal').classList.add('active');
     }
     
