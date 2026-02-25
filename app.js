@@ -114,17 +114,17 @@ class PixelArtEditor {
             this.currentColor = e.target.value;
         });
         
-        // Zoom controls
-        document.getElementById('zoomInBtn').addEventListener('click', () => this.zoomIn());
-        document.getElementById('zoomOutBtn').addEventListener('click', () => this.zoomOut());
-        document.getElementById('zoomResetBtn').addEventListener('click', () => this.zoomReset());
+        // Zoom slider
+        document.getElementById('zoomRange').addEventListener('input', (e) => {
+            this.zoom = parseInt(e.target.value) / 100;
+            document.getElementById('zoomLevel').textContent = e.target.value + '%';
+            this.render();
+        });
         
         // Action buttons
         document.getElementById('toggleTemplateBtn').addEventListener('click', () => this.toggleTemplate());
         document.getElementById('applyTemplateBtn').addEventListener('click', () => this.applyTemplate());
         document.getElementById('toggleFrameBtn').addEventListener('click', () => this.toggleFrame());
-        document.getElementById('undoBtn').addEventListener('click', () => this.undo());
-        document.getElementById('redoBtn').addEventListener('click', () => this.redo());
         document.getElementById('toggleGridBtn').addEventListener('click', () => this.toggleGrid());
         document.getElementById('clearBtn').addEventListener('click', () => this.clear());
         document.getElementById('exportBtn').addEventListener('click', () => this.exportPNG());
@@ -285,7 +285,9 @@ class PixelArtEditor {
         e.preventDefault();
         const delta = e.deltaY > 0 ? -0.1 : 0.1;
         this.zoom = Math.max(0.5, Math.min(5, this.zoom + delta));
-        document.getElementById('zoomLevel').textContent = Math.round(this.zoom * 100) + '%';
+        const zoomPercent = Math.round(this.zoom * 100);
+        document.getElementById('zoomLevel').textContent = zoomPercent + '%';
+        document.getElementById('zoomRange').value = zoomPercent;
         this.render();
     }
     
@@ -605,24 +607,6 @@ class PixelArtEditor {
         this.frameWidth = Math.max(1, this.frameWidth);
         this.frameHeight = Math.max(1, this.frameHeight);
         
-        this.render();
-    }
-    
-    zoomIn() {
-        this.zoom = Math.min(5, this.zoom + 0.25);
-        document.getElementById('zoomLevel').textContent = Math.round(this.zoom * 100) + '%';
-        this.render();
-    }
-    
-    zoomOut() {
-        this.zoom = Math.max(0.5, this.zoom - 0.25);
-        document.getElementById('zoomLevel').textContent = Math.round(this.zoom * 100) + '%';
-        this.render();
-    }
-    
-    zoomReset() {
-        this.zoom = 1;
-        document.getElementById('zoomLevel').textContent = '100%';
         this.render();
     }
     
