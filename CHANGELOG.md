@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.12](https://github.com/mrp2003/pixelart/compare/v0.0.11...v0.0.12) (2026-02-25)
+
+
+### Features
+
+* **ui:** remove sidebar toggle button and redesign icon buttons without boxes ([4f91f8f](https://github.com/mrp2003/pixelart/commit/4f91f8f27266e31c670b8aceeec43fbc41347156))
+
 ### [0.0.11](https://github.com/mrp2003/pixelart/compare/v0.0.10...v0.0.11) (2026-02-25)
 
 
