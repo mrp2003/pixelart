@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.18](https://github.com/mrp2003/pixelart/compare/v0.0.17...v0.0.18) (2026-02-25)
+
+
+### Features
+
+* **ui:** make sidebar floating and vertically centered, remove logo ([ba743c7](https://github.com/mrp2003/pixelart/commit/ba743c7864448c2f1ff7b4563e7e6f9fd40da265))
+
 ### [0.0.17](https://github.com/mrp2003/pixelart/compare/v0.0.16...v0.0.17) (2026-02-25)
 
 
