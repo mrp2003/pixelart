@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.4](https://github.com/mrp2003/pixelart/compare/v0.0.3...v0.0.4) (2026-02-25)
+
+
+### Features
+
+* **resize:** replace input controls with draggable edge handles for canvas resizing ([f47962c](https://github.com/mrp2003/pixelart/commit/f47962cf128ece71f1459afffbebb760aa0d5932))
+
 ### [0.0.3](https://github.com/mrp2003/pixelart/compare/v0.0.2...v0.0.3) (2026-02-25)
 
 
