@@ -176,7 +176,7 @@ class PixelArtEditor {
     }
     
     renderTemplate() {
-        this.ctx.fillStyle = 'rgba(200, 200, 200, 0.4)';
+        this.ctx.fillStyle = '#000000';
         
         Object.values(this.template).forEach(part => {
             part.forEach(([row, col]) => {
