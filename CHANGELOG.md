@@ -2,12 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-### [0.0.22](https://github.com/mrp2003/pixelart/compare/v0.0.21...v0.0.22) (2026-02-25)
+## [1.0.0](https://github.com/mrp2003/pixelart/compare/v0.0.21...v1.0.0) (2026-02-25)
 
 
 ### Features
 
 * **save:** add auto-save and manual save/load project functionality ([9cb9f0e](https://github.com/mrp2003/pixelart/commit/9cb9f0e0d4e1c2bb2f643c11295cb018aa8798b9))
+* **ui:** redesign template modal and zoom controls, fix export scaling ([b699129](https://github.com/mrp2003/pixelart/commit/b6991294303c52590fee46371c7388b46e1be69e))
 
 ### [0.0.21](https://github.com/mrp2003/pixelart/compare/v0.0.20...v0.0.21) (2026-02-25)
 
