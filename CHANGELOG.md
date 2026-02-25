@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.6](https://github.com/mrp2003/pixelart/compare/v0.0.5...v0.0.6) (2026-02-25)
+
+
+### Bug Fixes
+
+* **ui:** change canvas background from dark to white ([b5fa221](https://github.com/mrp2003/pixelart/commit/b5fa221aaaaa26f85e3c735fbda59699f765dcab))
+
 ### [0.0.5](https://github.com/mrp2003/pixelart/compare/v0.0.4...v0.0.5) (2026-02-25)
 
 
