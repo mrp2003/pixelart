@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.1.0](https://github.com/mrp2003/pixelart/compare/v0.0.22...v1.1.0) (2026-02-25)
+
+
+### Features
+
+* **color:** fix color picker and add recent colors palette ([742e68d](https://github.com/mrp2003/pixelart/commit/742e68d39d3fca65f98cd084b782eabbb929a310))
+
 ## [1.0.0](https://github.com/mrp2003/pixelart/compare/v0.0.21...v1.0.0) (2026-02-25)
 
 
