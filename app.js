@@ -51,9 +51,16 @@ class PixelArtEditor {
         
         this.setupCanvas();
         this.setupEventListeners();
+        this.initializeUI();
         this.centerCanvas();
         this.saveHistory();
         this.render();
+    }
+    
+    initializeUI() {
+        // Set initial grid icon opacity
+        const gridIcon = document.querySelector('#toggleGridBtn i');
+        gridIcon.style.opacity = this.showGrid ? '1' : '0.3';
     }
     
     setupCanvas() {
@@ -643,8 +650,8 @@ class PixelArtEditor {
     
     toggleGrid() {
         this.showGrid = !this.showGrid;
-        const btn = document.getElementById('toggleGridBtn');
-        btn.textContent = this.showGrid ? 'Hide Grid' : 'Show Grid';
+        const icon = document.querySelector('#toggleGridBtn i');
+        icon.style.opacity = this.showGrid ? '1' : '0.3';
         this.render();
     }
     
