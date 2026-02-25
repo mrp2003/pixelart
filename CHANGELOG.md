@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.17](https://github.com/mrp2003/pixelart/compare/v0.0.16...v0.0.17) (2026-02-25)
+
+
+### Features
+
+* **ui:** update logo and make sidebar background dark ([a96430b](https://github.com/mrp2003/pixelart/commit/a96430ba70e7f9dbf6e4e19c65ca7f926f7f313d))
+
 ### [0.0.16](https://github.com/mrp2003/pixelart/compare/v0.0.15...v0.0.16) (2026-02-25)
 
 
