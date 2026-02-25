@@ -283,8 +283,12 @@ class PixelArtEditor {
         }
     }
     
+    isValidColor(color) {
+        return color && typeof color === 'string' && color.match(/^#[0-9A-Fa-f]{6}$/);
+    }
+    
     setColor(color) {
-        if (!color || typeof color !== 'string' || !color.match(/^#[0-9A-Fa-f]{6}$/)) {
+        if (!this.isValidColor(color)) {
             console.warn('Invalid color:', color);
             color = '#000000';
         }
@@ -918,12 +922,15 @@ class PixelArtEditor {
             this.zoom = state.zoom ?? 1;
             this.offsetX = state.offsetX ?? Math.floor(this.canvas.width / 2);
             this.offsetY = state.offsetY ?? Math.floor(this.canvas.height / 2);
-            this.currentColor = state.currentColor ?? '#000000';
-            this.recentColors = state.recentColors ?? ['#000000', '#ffffff', '#ff0000', '#00ff00', '#0000ff'];
+            this.setColor(state.currentColor ?? '#000000');
+            const defaultColors = ['#000000', '#ffffff', '#ff0000', '#00ff00', '#0000ff'];
+            this.recentColors = (state.recentColors || defaultColors).filter(c => this.isValidColor(c));
+            if (this.recentColors.length === 0) {
+                this.recentColors = defaultColors;
+            }
             
             document.getElementById('zoomRange').value = Math.round(this.zoom * 100);
             document.getElementById('zoomLevel').value = Math.round(this.zoom * 100) + '%';
-            document.getElementById('colorPicker').value = this.currentColor;
             
             const gridIcon = document.querySelector('#toggleGridBtn i');
             if (gridIcon) gridIcon.style.opacity = this.showGrid ? '1' : '0.3';
@@ -986,12 +993,15 @@ class PixelArtEditor {
                     this.zoom = state.zoom ?? 1;
                     this.offsetX = state.offsetX ?? Math.floor(this.canvas.width / 2);
                     this.offsetY = state.offsetY ?? Math.floor(this.canvas.height / 2);
-                    this.currentColor = state.currentColor ?? '#000000';
-                    this.recentColors = state.recentColors ?? ['#000000', '#ffffff', '#ff0000', '#00ff00', '#0000ff'];
+                    this.setColor(state.currentColor ?? '#000000');
+                    const defaultColors = ['#000000', '#ffffff', '#ff0000', '#00ff00', '#0000ff'];
+                    this.recentColors = (state.recentColors || defaultColors).filter(c => this.isValidColor(c));
+                    if (this.recentColors.length === 0) {
+                        this.recentColors = defaultColors;
+                    }
                     
                     document.getElementById('zoomRange').value = Math.round(this.zoom * 100);
                     document.getElementById('zoomLevel').value = Math.round(this.zoom * 100) + '%';
-                    document.getElementById('colorPicker').value = this.currentColor;
                     
                     const gridIcon = document.querySelector('#toggleGridBtn i');
                     if (gridIcon) gridIcon.style.opacity = this.showGrid ? '1' : '0.3';
