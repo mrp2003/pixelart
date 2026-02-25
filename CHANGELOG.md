@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.16](https://github.com/mrp2003/pixelart/compare/v0.0.15...v0.0.16) (2026-02-25)
+
+
+### Bug Fixes
+
+* **ui:** use correct logo file pixelart-logo.png ([f28b485](https://github.com/mrp2003/pixelart/commit/f28b485f8a14fe68da89490bdf39a559aceebf6b))
+
 ### [0.0.15](https://github.com/mrp2003/pixelart/compare/v0.0.14...v0.0.15) (2026-02-25)
 
 
