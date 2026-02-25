@@ -69,7 +69,7 @@ class PixelArtEditor {
     
     setupCanvas() {
         const resizeCanvas = () => {
-            this.canvas.width = window.innerWidth - 70;
+            this.canvas.width = window.innerWidth;
             this.canvas.height = window.innerHeight;
             this.render();
         };
