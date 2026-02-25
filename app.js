@@ -12,6 +12,7 @@ class PixelArtEditor {
         // Drawing state
         this.currentTool = 'pen';
         this.currentColor = '#000000';
+        this.recentColors = ['#000000', '#ffffff', '#ff0000', '#00ff00', '#0000ff'];
         this.isDrawing = false;
         this.isPanning = false;
         this.lastPanX = 0;
@@ -69,6 +70,10 @@ class PixelArtEditor {
         // Set initial frame icon opacity
         const frameIcon = document.querySelector('#toggleFrameBtn i');
         frameIcon.style.opacity = this.showFrame ? '1' : '0.3';
+        
+        // Initialize color UI
+        this.updateColorIndicator();
+        this.renderRecentColors();
     }
     
     setupCanvas() {
@@ -118,10 +123,11 @@ class PixelArtEditor {
         
         // Color picker
         document.getElementById('colorPicker').addEventListener('input', (e) => {
-            this.currentColor = e.target.value;
+            this.setColor(e.target.value);
         });
         
-        document.getElementById('colorPicker').addEventListener('change', () => {
+        document.getElementById('colorPicker').addEventListener('change', (e) => {
+            this.addToRecentColors(e.target.value);
             this.saveToLocalStorage();
         });
         
@@ -259,6 +265,52 @@ class PixelArtEditor {
         } else if (tool === 'pan') {
             document.getElementById('panTool').classList.add('active');
             this.canvas.classList.add('panning');
+        }
+    }
+    
+    setColor(color) {
+        this.currentColor = color;
+        document.getElementById('colorPicker').value = color;
+        this.updateColorIndicator();
+    }
+    
+    addToRecentColors(color) {
+        if (this.recentColors.includes(color)) {
+            this.recentColors = this.recentColors.filter(c => c !== color);
+        }
+        
+        this.recentColors.unshift(color);
+        
+        if (this.recentColors.length > 10) {
+            this.recentColors = this.recentColors.slice(0, 10);
+        }
+        
+        this.renderRecentColors();
+    }
+    
+    renderRecentColors() {
+        const container = document.getElementById('recentColors');
+        if (!container) return;
+        
+        container.innerHTML = '';
+        this.recentColors.forEach(color => {
+            const colorBox = document.createElement('div');
+            colorBox.className = 'recent-color';
+            colorBox.style.backgroundColor = color;
+            colorBox.title = color;
+            colorBox.addEventListener('click', () => {
+                this.setColor(color);
+                this.addToRecentColors(color);
+                this.saveToLocalStorage();
+            });
+            container.appendChild(colorBox);
+        });
+    }
+    
+    updateColorIndicator() {
+        const indicator = document.getElementById('currentColorIndicator');
+        if (indicator) {
+            indicator.style.backgroundColor = this.currentColor;
         }
     }
     
@@ -808,7 +860,8 @@ class PixelArtEditor {
             zoom: this.zoom,
             offsetX: this.offsetX,
             offsetY: this.offsetY,
-            currentColor: this.currentColor
+            currentColor: this.currentColor,
+            recentColors: this.recentColors
         };
         
         try {
@@ -836,6 +889,7 @@ class PixelArtEditor {
             this.offsetX = state.offsetX ?? Math.floor(this.canvas.width / 2);
             this.offsetY = state.offsetY ?? Math.floor(this.canvas.height / 2);
             this.currentColor = state.currentColor ?? '#000000';
+            this.recentColors = state.recentColors ?? ['#000000', '#ffffff', '#ff0000', '#00ff00', '#0000ff'];
             
             document.getElementById('zoomRange').value = Math.round(this.zoom * 100);
             document.getElementById('zoomLevel').value = Math.round(this.zoom * 100) + '%';
@@ -864,6 +918,7 @@ class PixelArtEditor {
             offsetX: this.offsetX,
             offsetY: this.offsetY,
             currentColor: this.currentColor,
+            recentColors: this.recentColors,
             version: '1.0.0'
         };
         
@@ -902,6 +957,7 @@ class PixelArtEditor {
                     this.offsetX = state.offsetX ?? Math.floor(this.canvas.width / 2);
                     this.offsetY = state.offsetY ?? Math.floor(this.canvas.height / 2);
                     this.currentColor = state.currentColor ?? '#000000';
+                    this.recentColors = state.recentColors ?? ['#000000', '#ffffff', '#ff0000', '#00ff00', '#0000ff'];
                     
                     document.getElementById('zoomRange').value = Math.round(this.zoom * 100);
                     document.getElementById('zoomLevel').value = Math.round(this.zoom * 100) + '%';
@@ -912,6 +968,9 @@ class PixelArtEditor {
                     
                     const frameIcon = document.querySelector('#toggleFrameBtn i');
                     if (frameIcon) frameIcon.style.opacity = this.showFrame ? '1' : '0.3';
+                    
+                    this.updateColorIndicator();
+                    this.renderRecentColors();
                     
                     this.saveHistory();
                     this.render();
