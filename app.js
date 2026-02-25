@@ -2,49 +2,80 @@ class PixelArtEditor {
     constructor() {
         this.canvas = document.getElementById('pixelCanvas');
         this.ctx = this.canvas.getContext('2d');
-        this.gridWidth = 13;
-        this.gridHeight = 20;
+        
+        // Infinite canvas properties
         this.pixelSize = 20;
+        this.offsetX = 0;
+        this.offsetY = 0;
+        this.zoom = 1;
+        
+        // Drawing state
         this.currentTool = 'pen';
         this.currentColor = '#000000';
         this.isDrawing = false;
-        this.showTemplate = true;
-        this.showGrid = false;
+        this.isPanning = false;
+        this.lastPanX = 0;
+        this.lastPanY = 0;
         
-        this.grid = [];
+        // Pixel data (infinite grid stored as object)
+        this.pixels = {};
+        
+        // Template
+        this.showTemplate = true;
         this.template = this.loadTemplate();
+        this.templateOffsetX = 0;
+        this.templateOffsetY = 0;
+        
+        // History
         this.history = [];
         this.historyIndex = -1;
         
-        this.initializeGrid();
+        // Export frame
+        this.showFrame = false;
+        this.frameX = 0;
+        this.frameY = 0;
+        this.frameWidth = 13;
+        this.frameHeight = 20;
+        this.isDraggingFrame = false;
+        this.isResizingFrame = false;
+        this.resizeHandle = null;
+        this.dragStartX = 0;
+        this.dragStartY = 0;
+        this.frameStartX = 0;
+        this.frameStartY = 0;
+        this.frameStartWidth = 0;
+        this.frameStartHeight = 0;
+        
+        // Grid
+        this.showGrid = false;
+        
         this.setupCanvas();
         this.setupEventListeners();
+        this.centerCanvas();
         this.saveHistory();
         this.render();
     }
     
-    initializeGrid(applyTemplate = false) {
-        this.grid = Array(this.gridHeight).fill(null).map(() => 
-            Array(this.gridWidth).fill(null)
-        );
+    setupCanvas() {
+        const resizeCanvas = () => {
+            const sidebar = document.querySelector('.sidebar');
+            const sidebarWidth = sidebar.classList.contains('collapsed') ? 40 : 280;
+            this.canvas.width = window.innerWidth - sidebarWidth;
+            this.canvas.height = window.innerHeight;
+            this.render();
+        };
         
-        if (applyTemplate && this.template) {
-            this.applyTemplateToGrid();
-        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
     }
     
-    applyTemplateToGrid() {
-        Object.values(this.template).forEach(part => {
-            part.forEach(([row, col]) => {
-                if (row < this.gridHeight && col < this.gridWidth) {
-                    this.grid[row][col] = '#000000';
-                }
-            });
-        });
+    centerCanvas() {
+        this.offsetX = Math.floor(this.canvas.width / 2);
+        this.offsetY = Math.floor(this.canvas.height / 2);
     }
     
     loadTemplate() {
-        const templateData = {
+        return {
             head: [
                 [6,0], [5,0], [4,0], [3,1], [2,1], [1,2], [0,3], [0,4], [0,5], [0,6], 
                 [0,7], [0,8], [0,9], [1,10], [2,11], [3,11], [4,12], [5,12], [6,12], 
@@ -64,47 +95,55 @@ class PixelArtEditor {
                 [19,5], [19,7]
             ]
         };
-        
-        return templateData;
-    }
-    
-    setupCanvas() {
-        this.canvas.width = this.gridWidth * this.pixelSize;
-        this.canvas.height = this.gridHeight * this.pixelSize;
     }
     
     setupEventListeners() {
+        // Sidebar toggle
+        document.getElementById('sidebarToggle').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.toggle('collapsed');
+            setTimeout(() => this.setupCanvas(), 300);
+        });
+        
         // Tool buttons
         document.getElementById('penTool').addEventListener('click', () => this.setTool('pen'));
         document.getElementById('eraserTool').addEventListener('click', () => this.setTool('eraser'));
+        document.getElementById('panTool').addEventListener('click', () => this.setTool('pan'));
         
         // Color picker
         document.getElementById('colorPicker').addEventListener('input', (e) => {
             this.currentColor = e.target.value;
         });
         
+        // Zoom controls
+        document.getElementById('zoomInBtn').addEventListener('click', () => this.zoomIn());
+        document.getElementById('zoomOutBtn').addEventListener('click', () => this.zoomOut());
+        document.getElementById('zoomResetBtn').addEventListener('click', () => this.zoomReset());
+        
         // Action buttons
-        document.getElementById('clearBtn').addEventListener('click', () => this.clear());
-        document.getElementById('exportBtn').addEventListener('click', () => this.exportPNG());
         document.getElementById('toggleTemplateBtn').addEventListener('click', () => this.toggleTemplate());
-        document.getElementById('toggleGridBtn').addEventListener('click', () => this.toggleGrid());
         document.getElementById('applyTemplateBtn').addEventListener('click', () => this.applyTemplate());
+        document.getElementById('toggleFrameBtn').addEventListener('click', () => this.toggleFrame());
         document.getElementById('undoBtn').addEventListener('click', () => this.undo());
         document.getElementById('redoBtn').addEventListener('click', () => this.redo());
+        document.getElementById('toggleGridBtn').addEventListener('click', () => this.toggleGrid());
+        document.getElementById('clearBtn').addEventListener('click', () => this.clear());
+        document.getElementById('exportBtn').addEventListener('click', () => this.exportPNG());
         
-        // Resize handles
-        this.setupResizeHandles();
-        
-        // Canvas mouse events
-        this.canvas.addEventListener('mousedown', (e) => this.startDrawing(e));
-        this.canvas.addEventListener('mousemove', (e) => this.draw(e));
-        this.canvas.addEventListener('mouseup', () => this.stopDrawing());
-        this.canvas.addEventListener('mouseleave', () => this.stopDrawing());
+        // Canvas events
+        this.canvas.addEventListener('mousedown', (e) => this.handleMouseDown(e));
+        this.canvas.addEventListener('mousemove', (e) => this.handleMouseMove(e));
+        this.canvas.addEventListener('mouseup', () => this.handleMouseUp());
+        this.canvas.addEventListener('mouseleave', () => this.handleMouseUp());
+        this.canvas.addEventListener('wheel', (e) => this.handleWheel(e), { passive: false });
         
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
             if (e.key === 'p' || e.key === 'P') this.setTool('pen');
             if (e.key === 'e' || e.key === 'E') this.setTool('eraser');
+            if (e.key === ' ') {
+                e.preventDefault();
+                this.setTool('pan');
+            }
             
             if (e.ctrlKey && e.key === 'z') {
                 e.preventDefault();
@@ -125,121 +164,492 @@ class PixelArtEditor {
         
         if (tool === 'pen') {
             document.getElementById('penTool').classList.add('active');
-            this.canvas.style.cursor = 'crosshair';
+            this.canvas.classList.remove('panning');
         } else if (tool === 'eraser') {
             document.getElementById('eraserTool').classList.add('active');
-            this.canvas.style.cursor = 'cell';
+            this.canvas.classList.remove('panning');
+        } else if (tool === 'pan') {
+            document.getElementById('panTool').classList.add('active');
+            this.canvas.classList.add('panning');
         }
     }
     
-    getGridPosition(e) {
+    screenToGrid(screenX, screenY) {
+        const scale = this.pixelSize * this.zoom;
+        const gridX = Math.floor((screenX - this.offsetX) / scale);
+        const gridY = Math.floor((screenY - this.offsetY) / scale);
+        return { x: gridX, y: gridY };
+    }
+    
+    gridToScreen(gridX, gridY) {
+        const scale = this.pixelSize * this.zoom;
+        const screenX = gridX * scale + this.offsetX;
+        const screenY = gridY * scale + this.offsetY;
+        return { x: screenX, y: screenY };
+    }
+    
+    handleMouseDown(e) {
         const rect = this.canvas.getBoundingClientRect();
-        const x = Math.floor((e.clientX - rect.left) / this.pixelSize);
-        const y = Math.floor((e.clientY - rect.top) / this.pixelSize);
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
         
-        if (x >= 0 && x < this.gridWidth && y >= 0 && y < this.gridHeight) {
-            return { x, y };
+        // Check if clicking on frame
+        if (this.showFrame) {
+            const handle = this.getFrameHandle(mouseX, mouseY);
+            
+            if (handle) {
+                this.isResizingFrame = true;
+                this.resizeHandle = handle;
+                this.dragStartX = mouseX;
+                this.dragStartY = mouseY;
+                this.frameStartX = this.frameX;
+                this.frameStartY = this.frameY;
+                this.frameStartWidth = this.frameWidth;
+                this.frameStartHeight = this.frameHeight;
+                return;
+            }
+            
+            if (this.isInsideFrame(mouseX, mouseY)) {
+                this.isDraggingFrame = true;
+                this.dragStartX = mouseX;
+                this.dragStartY = mouseY;
+                this.frameStartX = this.frameX;
+                this.frameStartY = this.frameY;
+                return;
+            }
         }
-        return null;
-    }
-    
-    startDrawing(e) {
-        this.isDrawing = true;
-        this.draw(e);
-    }
-    
-    draw(e) {
-        if (!this.isDrawing) return;
         
-        const pos = this.getGridPosition(e);
-        if (!pos) return;
+        if (this.currentTool === 'pan') {
+            this.isPanning = true;
+            this.lastPanX = mouseX;
+            this.lastPanY = mouseY;
+        } else if (this.currentTool === 'pen' || this.currentTool === 'eraser') {
+            this.isDrawing = true;
+            this.drawPixel(mouseX, mouseY);
+        }
+    }
+    
+    handleMouseMove(e) {
+        const rect = this.canvas.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+        
+        // Update cursor
+        if (this.showFrame && !this.isDraggingFrame && !this.isResizingFrame) {
+            const handle = this.getFrameHandle(mouseX, mouseY);
+            if (handle) {
+                this.canvas.style.cursor = this.getHandleCursor(handle);
+            } else if (this.isInsideFrame(mouseX, mouseY)) {
+                this.canvas.style.cursor = 'move';
+            } else {
+                this.canvas.style.cursor = this.currentTool === 'pan' ? 'grab' : 'crosshair';
+            }
+        }
+        
+        if (this.isDraggingFrame) {
+            const grid = this.screenToGrid(mouseX, mouseY);
+            const startGrid = this.screenToGrid(this.dragStartX, this.dragStartY);
+            const deltaX = grid.x - startGrid.x;
+            const deltaY = grid.y - startGrid.y;
+            this.frameX = this.frameStartX + deltaX;
+            this.frameY = this.frameStartY + deltaY;
+            this.render();
+        } else if (this.isResizingFrame) {
+            this.resizeFrame(mouseX, mouseY);
+        } else if (this.isPanning) {
+            const deltaX = mouseX - this.lastPanX;
+            const deltaY = mouseY - this.lastPanY;
+            this.offsetX += deltaX;
+            this.offsetY += deltaY;
+            this.lastPanX = mouseX;
+            this.lastPanY = mouseY;
+            this.render();
+        } else if (this.isDrawing) {
+            this.drawPixel(mouseX, mouseY);
+        }
+    }
+    
+    handleMouseUp() {
+        if (this.isDrawing) {
+            this.isDrawing = false;
+            this.saveHistory();
+        }
+        this.isPanning = false;
+        this.isDraggingFrame = false;
+        this.isResizingFrame = false;
+        this.resizeHandle = null;
+        this.canvas.style.cursor = this.currentTool === 'pan' ? 'grab' : 'crosshair';
+    }
+    
+    handleWheel(e) {
+        e.preventDefault();
+        const delta = e.deltaY > 0 ? -0.1 : 0.1;
+        this.zoom = Math.max(0.5, Math.min(5, this.zoom + delta));
+        document.getElementById('zoomLevel').textContent = Math.round(this.zoom * 100) + '%';
+        this.render();
+    }
+    
+    drawPixel(screenX, screenY) {
+        const grid = this.screenToGrid(screenX, screenY);
+        const key = `${grid.x},${grid.y}`;
         
         if (this.currentTool === 'pen') {
-            this.grid[pos.y][pos.x] = this.currentColor;
+            this.pixels[key] = this.currentColor;
         } else if (this.currentTool === 'eraser') {
-            this.grid[pos.y][pos.x] = null;
+            delete this.pixels[key];
         }
         
         this.render();
     }
     
-    stopDrawing() {
-        if (this.isDrawing) {
-            this.isDrawing = false;
-            this.saveHistory();
-        }
-    }
-    
     render() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         
-        // Draw template layer (if enabled)
-        if (this.showTemplate) {
-            this.renderTemplate();
+        // Draw background pattern
+        this.drawBackground();
+        
+        // Draw grid
+        if (this.showGrid) {
+            this.drawGrid();
         }
         
-        // Draw grid lines (if enabled)
-        if (this.showGrid) {
-            this.ctx.strokeStyle = '#e0e0e0';
-            this.ctx.lineWidth = 1;
-            
-            for (let i = 0; i <= this.gridWidth; i++) {
-                this.ctx.beginPath();
-                this.ctx.moveTo(i * this.pixelSize, 0);
-                this.ctx.lineTo(i * this.pixelSize, this.canvas.height);
-                this.ctx.stroke();
-            }
-            
-            for (let i = 0; i <= this.gridHeight; i++) {
-                this.ctx.beginPath();
-                this.ctx.moveTo(0, i * this.pixelSize);
-                this.ctx.lineTo(this.canvas.width, i * this.pixelSize);
-                this.ctx.stroke();
-            }
+        // Draw template
+        if (this.showTemplate) {
+            this.drawTemplate();
         }
         
         // Draw pixels
-        const padding = this.showGrid ? 1 : 0;
-        const size = this.showGrid ? this.pixelSize - 2 : this.pixelSize;
+        this.drawPixels();
         
-        for (let y = 0; y < this.gridHeight; y++) {
-            for (let x = 0; x < this.gridWidth; x++) {
-                if (this.grid[y][x]) {
-                    this.ctx.fillStyle = this.grid[y][x];
-                    this.ctx.fillRect(
-                        x * this.pixelSize + padding,
-                        y * this.pixelSize + padding,
-                        size,
-                        size
-                    );
-                }
-            }
+        // Draw export frame
+        if (this.showFrame) {
+            this.drawFrame();
         }
     }
     
-    renderTemplate() {
+    drawBackground() {
+        const scale = this.pixelSize * this.zoom;
+        const startX = Math.floor(-this.offsetX / scale) - 1;
+        const startY = Math.floor(-this.offsetY / scale) - 1;
+        const endX = Math.floor((this.canvas.width - this.offsetX) / scale) + 1;
+        const endY = Math.floor((this.canvas.height - this.offsetY) / scale) + 1;
+        
+        this.ctx.fillStyle = '#1a1a1a';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    }
+    
+    drawGrid() {
+        const scale = this.pixelSize * this.zoom;
+        const startX = Math.floor(-this.offsetX / scale) - 1;
+        const startY = Math.floor(-this.offsetY / scale) - 1;
+        const endX = Math.floor((this.canvas.width - this.offsetX) / scale) + 1;
+        const endY = Math.floor((this.canvas.height - this.offsetY) / scale) + 1;
+        
+        this.ctx.strokeStyle = '#333';
+        this.ctx.lineWidth = 1;
+        
+        // Vertical lines
+        for (let x = startX; x <= endX; x++) {
+            const screenX = x * scale + this.offsetX;
+            this.ctx.beginPath();
+            this.ctx.moveTo(screenX, 0);
+            this.ctx.lineTo(screenX, this.canvas.height);
+            this.ctx.stroke();
+        }
+        
+        // Horizontal lines
+        for (let y = startY; y <= endY; y++) {
+            const screenY = y * scale + this.offsetY;
+            this.ctx.beginPath();
+            this.ctx.moveTo(0, screenY);
+            this.ctx.lineTo(this.canvas.width, screenY);
+            this.ctx.stroke();
+        }
+    }
+    
+    drawTemplate() {
         this.ctx.fillStyle = 'rgba(200, 200, 200, 0.4)';
-        const padding = this.showGrid ? 1 : 0;
-        const size = this.showGrid ? this.pixelSize - 2 : this.pixelSize;
+        const scale = this.pixelSize * this.zoom;
         
         Object.values(this.template).forEach(part => {
             part.forEach(([row, col]) => {
-                if (row < this.gridHeight && col < this.gridWidth) {
-                    this.ctx.fillRect(
-                        col * this.pixelSize + padding,
-                        row * this.pixelSize + padding,
-                        size,
-                        size
-                    );
-                }
+                const gridX = col + this.templateOffsetX;
+                const gridY = row + this.templateOffsetY;
+                const screen = this.gridToScreen(gridX, gridY);
+                this.ctx.fillRect(screen.x, screen.y, scale, scale);
             });
         });
+    }
+    
+    drawPixels() {
+        const scale = this.pixelSize * this.zoom;
+        
+        Object.entries(this.pixels).forEach(([key, color]) => {
+            const [x, y] = key.split(',').map(Number);
+            const screen = this.gridToScreen(x, y);
+            
+            if (screen.x + scale >= 0 && screen.x < this.canvas.width &&
+                screen.y + scale >= 0 && screen.y < this.canvas.height) {
+                this.ctx.fillStyle = color;
+                this.ctx.fillRect(screen.x, screen.y, scale, scale);
+            }
+        });
+    }
+    
+    drawFrame() {
+        const scale = this.pixelSize * this.zoom;
+        const screen = this.gridToScreen(this.frameX, this.frameY);
+        const width = this.frameWidth * scale;
+        const height = this.frameHeight * scale;
+        
+        // Draw overlay
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        // Clear frame area
+        this.ctx.clearRect(screen.x, screen.y, width, height);
+        
+        // Redraw content in frame
+        if (this.showTemplate) {
+            this.ctx.fillStyle = 'rgba(200, 200, 200, 0.4)';
+            Object.values(this.template).forEach(part => {
+                part.forEach(([row, col]) => {
+                    const gridX = col + this.templateOffsetX;
+                    const gridY = row + this.templateOffsetY;
+                    
+                    if (gridX >= this.frameX && gridX < this.frameX + this.frameWidth &&
+                        gridY >= this.frameY && gridY < this.frameY + this.frameHeight) {
+                        const s = this.gridToScreen(gridX, gridY);
+                        this.ctx.fillRect(s.x, s.y, scale, scale);
+                    }
+                });
+            });
+        }
+        
+        Object.entries(this.pixels).forEach(([key, color]) => {
+            const [x, y] = key.split(',').map(Number);
+            
+            if (x >= this.frameX && x < this.frameX + this.frameWidth &&
+                y >= this.frameY && y < this.frameY + this.frameHeight) {
+                const s = this.gridToScreen(x, y);
+                this.ctx.fillStyle = color;
+                this.ctx.fillRect(s.x, s.y, scale, scale);
+            }
+        });
+        
+        // Draw frame border
+        this.ctx.strokeStyle = '#007bff';
+        this.ctx.lineWidth = 2;
+        this.ctx.strokeRect(screen.x, screen.y, width, height);
+        
+        // Draw resize handles
+        this.drawFrameHandles(screen.x, screen.y, width, height);
+    }
+    
+    drawFrameHandles(x, y, width, height) {
+        const handleSize = 12;
+        const edgeHandleSize = 40;
+        
+        this.ctx.fillStyle = '#007bff';
+        this.ctx.strokeStyle = '#fff';
+        this.ctx.lineWidth = 2;
+        
+        // Corners
+        this.ctx.fillRect(x - handleSize/2, y - handleSize/2, handleSize, handleSize);
+        this.ctx.strokeRect(x - handleSize/2, y - handleSize/2, handleSize, handleSize);
+        
+        this.ctx.fillRect(x + width - handleSize/2, y - handleSize/2, handleSize, handleSize);
+        this.ctx.strokeRect(x + width - handleSize/2, y - handleSize/2, handleSize, handleSize);
+        
+        this.ctx.fillRect(x - handleSize/2, y + height - handleSize/2, handleSize, handleSize);
+        this.ctx.strokeRect(x - handleSize/2, y + height - handleSize/2, handleSize, handleSize);
+        
+        this.ctx.fillRect(x + width - handleSize/2, y + height - handleSize/2, handleSize, handleSize);
+        this.ctx.strokeRect(x + width - handleSize/2, y + height - handleSize/2, handleSize, handleSize);
+        
+        // Edges
+        this.ctx.fillRect(x + width/2 - edgeHandleSize/2, y - 4, edgeHandleSize, 8);
+        this.ctx.strokeRect(x + width/2 - edgeHandleSize/2, y - 4, edgeHandleSize, 8);
+        
+        this.ctx.fillRect(x + width/2 - edgeHandleSize/2, y + height - 4, edgeHandleSize, 8);
+        this.ctx.strokeRect(x + width/2 - edgeHandleSize/2, y + height - 4, edgeHandleSize, 8);
+        
+        this.ctx.fillRect(x - 4, y + height/2 - edgeHandleSize/2, 8, edgeHandleSize);
+        this.ctx.strokeRect(x - 4, y + height/2 - edgeHandleSize/2, 8, edgeHandleSize);
+        
+        this.ctx.fillRect(x + width - 4, y + height/2 - edgeHandleSize/2, 8, edgeHandleSize);
+        this.ctx.strokeRect(x + width - 4, y + height/2 - edgeHandleSize/2, 8, edgeHandleSize);
+    }
+    
+    isInsideFrame(mouseX, mouseY) {
+        const scale = this.pixelSize * this.zoom;
+        const screen = this.gridToScreen(this.frameX, this.frameY);
+        const width = this.frameWidth * scale;
+        const height = this.frameHeight * scale;
+        
+        return mouseX >= screen.x && mouseX <= screen.x + width &&
+               mouseY >= screen.y && mouseY <= screen.y + height;
+    }
+    
+    getFrameHandle(mouseX, mouseY) {
+        const scale = this.pixelSize * this.zoom;
+        const screen = this.gridToScreen(this.frameX, this.frameY);
+        const width = this.frameWidth * scale;
+        const height = this.frameHeight * scale;
+        
+        const handleSize = 12;
+        const edgeHandleSize = 40;
+        const tolerance = 8;
+        
+        // Check corners
+        if (this.isNearPoint(mouseX, mouseY, screen.x, screen.y, handleSize)) {
+            return 'tl';
+        }
+        if (this.isNearPoint(mouseX, mouseY, screen.x + width, screen.y, handleSize)) {
+            return 'tr';
+        }
+        if (this.isNearPoint(mouseX, mouseY, screen.x, screen.y + height, handleSize)) {
+            return 'bl';
+        }
+        if (this.isNearPoint(mouseX, mouseY, screen.x + width, screen.y + height, handleSize)) {
+            return 'br';
+        }
+        
+        // Check edges
+        if (Math.abs(mouseY - screen.y) < tolerance &&
+            mouseX >= screen.x + width/2 - edgeHandleSize/2 &&
+            mouseX <= screen.x + width/2 + edgeHandleSize/2) {
+            return 'top';
+        }
+        if (Math.abs(mouseY - (screen.y + height)) < tolerance &&
+            mouseX >= screen.x + width/2 - edgeHandleSize/2 &&
+            mouseX <= screen.x + width/2 + edgeHandleSize/2) {
+            return 'bottom';
+        }
+        if (Math.abs(mouseX - screen.x) < tolerance &&
+            mouseY >= screen.y + height/2 - edgeHandleSize/2 &&
+            mouseY <= screen.y + height/2 + edgeHandleSize/2) {
+            return 'left';
+        }
+        if (Math.abs(mouseX - (screen.x + width)) < tolerance &&
+            mouseY >= screen.y + height/2 - edgeHandleSize/2 &&
+            mouseY <= screen.y + height/2 + edgeHandleSize/2) {
+            return 'right';
+        }
+        
+        return null;
+    }
+    
+    isNearPoint(x, y, targetX, targetY, tolerance) {
+        return Math.abs(x - targetX) <= tolerance && Math.abs(y - targetY) <= tolerance;
+    }
+    
+    getHandleCursor(handle) {
+        const cursors = {
+            'tl': 'nwse-resize',
+            'tr': 'nesw-resize',
+            'bl': 'nesw-resize',
+            'br': 'nwse-resize',
+            'top': 'ns-resize',
+            'bottom': 'ns-resize',
+            'left': 'ew-resize',
+            'right': 'ew-resize'
+        };
+        return cursors[handle] || 'default';
+    }
+    
+    resizeFrame(mouseX, mouseY) {
+        const grid = this.screenToGrid(mouseX, mouseY);
+        const startGrid = this.screenToGrid(this.dragStartX, this.dragStartY);
+        const deltaX = grid.x - startGrid.x;
+        const deltaY = grid.y - startGrid.y;
+        
+        switch (this.resizeHandle) {
+            case 'tl':
+                this.frameX = Math.min(this.frameStartX + deltaX, this.frameStartX + this.frameStartWidth - 1);
+                this.frameY = Math.min(this.frameStartY + deltaY, this.frameStartY + this.frameStartHeight - 1);
+                this.frameWidth = this.frameStartWidth - (this.frameX - this.frameStartX);
+                this.frameHeight = this.frameStartHeight - (this.frameY - this.frameStartY);
+                break;
+            case 'tr':
+                this.frameY = Math.min(this.frameStartY + deltaY, this.frameStartY + this.frameStartHeight - 1);
+                this.frameWidth = Math.max(1, this.frameStartWidth + deltaX);
+                this.frameHeight = this.frameStartHeight - (this.frameY - this.frameStartY);
+                break;
+            case 'bl':
+                this.frameX = Math.min(this.frameStartX + deltaX, this.frameStartX + this.frameStartWidth - 1);
+                this.frameWidth = this.frameStartWidth - (this.frameX - this.frameStartX);
+                this.frameHeight = Math.max(1, this.frameStartHeight + deltaY);
+                break;
+            case 'br':
+                this.frameWidth = Math.max(1, this.frameStartWidth + deltaX);
+                this.frameHeight = Math.max(1, this.frameStartHeight + deltaY);
+                break;
+            case 'top':
+                this.frameY = Math.min(this.frameStartY + deltaY, this.frameStartY + this.frameStartHeight - 1);
+                this.frameHeight = this.frameStartHeight - (this.frameY - this.frameStartY);
+                break;
+            case 'bottom':
+                this.frameHeight = Math.max(1, this.frameStartHeight + deltaY);
+                break;
+            case 'left':
+                this.frameX = Math.min(this.frameStartX + deltaX, this.frameStartX + this.frameStartWidth - 1);
+                this.frameWidth = this.frameStartWidth - (this.frameX - this.frameStartX);
+                break;
+            case 'right':
+                this.frameWidth = Math.max(1, this.frameStartWidth + deltaX);
+                break;
+        }
+        
+        // Ensure minimum size
+        this.frameWidth = Math.max(1, this.frameWidth);
+        this.frameHeight = Math.max(1, this.frameHeight);
+        
+        this.render();
+    }
+    
+    zoomIn() {
+        this.zoom = Math.min(5, this.zoom + 0.25);
+        document.getElementById('zoomLevel').textContent = Math.round(this.zoom * 100) + '%';
+        this.render();
+    }
+    
+    zoomOut() {
+        this.zoom = Math.max(0.5, this.zoom - 0.25);
+        document.getElementById('zoomLevel').textContent = Math.round(this.zoom * 100) + '%';
+        this.render();
+    }
+    
+    zoomReset() {
+        this.zoom = 1;
+        document.getElementById('zoomLevel').textContent = '100%';
+        this.render();
     }
     
     toggleTemplate() {
         this.showTemplate = !this.showTemplate;
         const btn = document.getElementById('toggleTemplateBtn');
         btn.textContent = this.showTemplate ? 'Hide Template' : 'Show Template';
+        this.render();
+    }
+    
+    applyTemplate() {
+        Object.values(this.template).forEach(part => {
+            part.forEach(([row, col]) => {
+                const gridX = col + this.templateOffsetX;
+                const gridY = row + this.templateOffsetY;
+                const key = `${gridX},${gridY}`;
+                this.pixels[key] = '#000000';
+            });
+        });
+        this.saveHistory();
+        this.render();
+    }
+    
+    toggleFrame() {
+        this.showFrame = !this.showFrame;
+        const btn = document.getElementById('toggleFrameBtn');
+        btn.textContent = this.showFrame ? 'Hide Export Frame' : 'Show Export Frame';
         this.render();
     }
     
@@ -250,17 +660,10 @@ class PixelArtEditor {
         this.render();
     }
     
-    applyTemplate() {
-        this.applyTemplateToGrid();
-        this.saveHistory();
-        this.render();
-    }
-    
     saveHistory() {
-        const gridCopy = this.grid.map(row => [...row]);
-        
+        const pixelsCopy = { ...this.pixels };
         this.history = this.history.slice(0, this.historyIndex + 1);
-        this.history.push(gridCopy);
+        this.history.push(pixelsCopy);
         this.historyIndex++;
         
         if (this.history.length > 50) {
@@ -272,7 +675,7 @@ class PixelArtEditor {
     undo() {
         if (this.historyIndex > 0) {
             this.historyIndex--;
-            this.grid = this.history[this.historyIndex].map(row => [...row]);
+            this.pixels = { ...this.history[this.historyIndex] };
             this.render();
         }
     }
@@ -280,193 +683,40 @@ class PixelArtEditor {
     redo() {
         if (this.historyIndex < this.history.length - 1) {
             this.historyIndex++;
-            this.grid = this.history[this.historyIndex].map(row => [...row]);
+            this.pixels = { ...this.history[this.historyIndex] };
             this.render();
         }
     }
     
     clear() {
-        if (confirm('Clear the entire canvas?')) {
-            this.initializeGrid();
+        if (confirm('Clear all pixels?')) {
+            this.pixels = {};
             this.saveHistory();
             this.render();
         }
     }
     
-    setupResizeHandles() {
-        const handles = {
-            top: document.querySelector('.resize-handle-top'),
-            right: document.querySelector('.resize-handle-right'),
-            bottom: document.querySelector('.resize-handle-bottom'),
-            left: document.querySelector('.resize-handle-left')
-        };
-        
-        let isDragging = false;
-        let dragHandle = null;
-        let startY = 0;
-        let startX = 0;
-        
-        const startDrag = (e, handle) => {
-            isDragging = true;
-            dragHandle = handle;
-            startY = e.clientY;
-            startX = e.clientX;
-            e.preventDefault();
-        };
-        
-        const onDrag = (e) => {
-            if (!isDragging) return;
-            
-            const deltaY = Math.floor((e.clientY - startY) / this.pixelSize);
-            const deltaX = Math.floor((e.clientX - startX) / this.pixelSize);
-            
-            if (deltaY === 0 && deltaX === 0) return;
-            
-            if (dragHandle === 'bottom' && deltaY !== 0) {
-                this.resizeBottom(deltaY);
-                startY = e.clientY;
-            } else if (dragHandle === 'top' && deltaY !== 0) {
-                this.resizeTop(deltaY);
-                startY = e.clientY;
-            } else if (dragHandle === 'right' && deltaX !== 0) {
-                this.resizeRight(deltaX);
-                startX = e.clientX;
-            } else if (dragHandle === 'left' && deltaX !== 0) {
-                this.resizeLeft(deltaX);
-                startX = e.clientX;
-            }
-        };
-        
-        const stopDrag = () => {
-            if (isDragging) {
-                isDragging = false;
-                dragHandle = null;
-                this.saveHistory();
-            }
-        };
-        
-        handles.top.addEventListener('mousedown', (e) => startDrag(e, 'top'));
-        handles.right.addEventListener('mousedown', (e) => startDrag(e, 'right'));
-        handles.bottom.addEventListener('mousedown', (e) => startDrag(e, 'bottom'));
-        handles.left.addEventListener('mousedown', (e) => startDrag(e, 'left'));
-        
-        document.addEventListener('mousemove', onDrag);
-        document.addEventListener('mouseup', stopDrag);
-    }
-    
-    resizeBottom(delta) {
-        const newHeight = Math.max(1, this.gridHeight + delta);
-        if (newHeight === this.gridHeight) return;
-        
-        const oldGrid = this.grid.map(row => [...row]);
-        
-        this.gridHeight = newHeight;
-        this.grid = Array(this.gridHeight).fill(null).map(() => 
-            Array(this.gridWidth).fill(null)
-        );
-        
-        for (let y = 0; y < Math.min(oldGrid.length, this.gridHeight); y++) {
-            for (let x = 0; x < this.gridWidth; x++) {
-                this.grid[y][x] = oldGrid[y][x];
-            }
-        }
-        
-        this.setupCanvas();
-        this.render();
-    }
-    
-    resizeTop(delta) {
-        const newHeight = Math.max(1, this.gridHeight - delta);
-        if (newHeight === this.gridHeight) return;
-        
-        const oldGrid = this.grid.map(row => [...row]);
-        const rowsAdded = newHeight - this.gridHeight;
-        
-        this.gridHeight = newHeight;
-        this.grid = Array(this.gridHeight).fill(null).map(() => 
-            Array(this.gridWidth).fill(null)
-        );
-        
-        const startRow = rowsAdded > 0 ? rowsAdded : 0;
-        const oldStartRow = rowsAdded > 0 ? 0 : -rowsAdded;
-        
-        for (let y = 0; y < Math.min(oldGrid.length, this.gridHeight - startRow); y++) {
-            for (let x = 0; x < this.gridWidth; x++) {
-                this.grid[startRow + y][x] = oldGrid[oldStartRow + y][x];
-            }
-        }
-        
-        this.setupCanvas();
-        this.render();
-    }
-    
-    resizeRight(delta) {
-        const newWidth = Math.max(1, this.gridWidth + delta);
-        if (newWidth === this.gridWidth) return;
-        
-        const oldGrid = this.grid.map(row => [...row]);
-        
-        this.gridWidth = newWidth;
-        this.grid = Array(this.gridHeight).fill(null).map(() => 
-            Array(this.gridWidth).fill(null)
-        );
-        
-        for (let y = 0; y < this.gridHeight; y++) {
-            for (let x = 0; x < Math.min(oldGrid[0].length, this.gridWidth); x++) {
-                this.grid[y][x] = oldGrid[y][x];
-            }
-        }
-        
-        this.setupCanvas();
-        this.render();
-    }
-    
-    resizeLeft(delta) {
-        const newWidth = Math.max(1, this.gridWidth - delta);
-        if (newWidth === this.gridWidth) return;
-        
-        const oldGrid = this.grid.map(row => [...row]);
-        const colsAdded = newWidth - this.gridWidth;
-        
-        this.gridWidth = newWidth;
-        this.grid = Array(this.gridHeight).fill(null).map(() => 
-            Array(this.gridWidth).fill(null)
-        );
-        
-        const startCol = colsAdded > 0 ? colsAdded : 0;
-        const oldStartCol = colsAdded > 0 ? 0 : -colsAdded;
-        
-        for (let y = 0; y < this.gridHeight; y++) {
-            for (let x = 0; x < Math.min(oldGrid[0].length, this.gridWidth - startCol); x++) {
-                this.grid[y][startCol + x] = oldGrid[y][oldStartCol + x];
-            }
-        }
-        
-        this.setupCanvas();
-        this.render();
-    }
-    
     exportPNG() {
-        // Create a new canvas without grid lines for export
         const exportCanvas = document.createElement('canvas');
-        exportCanvas.width = this.gridWidth;
-        exportCanvas.height = this.gridHeight;
+        exportCanvas.width = this.frameWidth;
+        exportCanvas.height = this.frameHeight;
         const exportCtx = exportCanvas.getContext('2d');
         
-        // Fill with transparent background
         exportCtx.clearRect(0, 0, exportCanvas.width, exportCanvas.height);
         
-        // Draw only the pixels (1 pixel per grid cell)
-        for (let y = 0; y < this.gridHeight; y++) {
-            for (let x = 0; x < this.gridWidth; x++) {
-                if (this.grid[y][x]) {
-                    exportCtx.fillStyle = this.grid[y][x];
+        for (let y = 0; y < this.frameHeight; y++) {
+            for (let x = 0; x < this.frameWidth; x++) {
+                const gridX = this.frameX + x;
+                const gridY = this.frameY + y;
+                const key = `${gridX},${gridY}`;
+                
+                if (this.pixels[key]) {
+                    exportCtx.fillStyle = this.pixels[key];
                     exportCtx.fillRect(x, y, 1, 1);
                 }
             }
         }
         
-        // Download
         exportCanvas.toBlob((blob) => {
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -478,7 +728,6 @@ class PixelArtEditor {
     }
 }
 
-// Initialize the editor when page loads
 document.addEventListener('DOMContentLoaded', () => {
     new PixelArtEditor();
 });

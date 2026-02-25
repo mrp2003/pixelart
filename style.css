@@ -6,55 +6,103 @@
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    background: #f5f5f5;
+    background: #2a2a2a;
     color: #333;
+    overflow: hidden;
+    height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 280px;
+    background: #fff;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+    z-index: 1000;
+    overflow-y: auto;
+}
+
+.sidebar.collapsed {
+    transform: translateX(-240px);
+}
+
+.sidebar-toggle {
+    position: absolute;
+    right: -40px;
+    top: 20px;
+    width: 40px;
+    height: 40px;
+    background: #fff;
+    border: none;
+    border-radius: 0 8px 8px 0;
+    cursor: pointer;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: all 0.3s ease;
+}
+
+.sidebar-toggle:hover {
+    background: #f5f5f5;
+}
+
+.sidebar.collapsed .toggle-icon {
+    transform: rotate(180deg);
+}
+
+.sidebar-content {
     padding: 20px;
 }
 
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-header {
-    text-align: center;
-    margin-bottom: 30px;
-}
-
-h1 {
-    font-size: 28px;
+.sidebar-content h2 {
+    font-size: 20px;
     font-weight: 600;
-}
-
-.toolbar {
-    display: flex;
-    gap: 20px;
-    align-items: center;
-    background: white;
-    padding: 15px 20px;
-    border-radius: 8px;
     margin-bottom: 20px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    flex-wrap: wrap;
+    color: #333;
 }
 
-.tool-group {
+.tool-section {
+    margin-bottom: 24px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.tool-section:last-child {
+    border-bottom: none;
+}
+
+.tool-section h3 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.tool-buttons {
     display: flex;
-    gap: 10px;
-    align-items: center;
+    flex-direction: column;
+    gap: 8px;
 }
 
 .tool-btn {
-    width: 40px;
-    height: 40px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
     border: 2px solid #ddd;
     background: white;
     border-radius: 6px;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     transition: all 0.2s;
+    font-size: 14px;
 }
 
 .tool-btn:hover {
@@ -68,16 +116,33 @@ h1 {
     color: #007bff;
 }
 
+.tool-btn svg {
+    flex-shrink: 0;
+}
+
 #colorPicker {
-    width: 60px;
-    height: 40px;
+    width: 100%;
+    height: 50px;
     border: 2px solid #ddd;
     border-radius: 6px;
     cursor: pointer;
 }
 
+.zoom-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#zoomLevel {
+    flex: 1;
+    text-align: center;
+    font-weight: 600;
+    color: #333;
+}
+
 .action-btn {
-    padding: 10px 20px;
+    padding: 10px 16px;
     border: 1px solid #ddd;
     background: white;
     border-radius: 6px;
@@ -87,74 +152,159 @@ h1 {
 }
 
 .action-btn:hover {
+    background: #f5f5f5;
+    border-color: #999;
+}
+
+.action-btn.full-width {
+    width: 100%;
+    margin-bottom: 8px;
+}
+
+.action-btn.full-width:last-child {
+    margin-bottom: 0;
+}
+
+.action-btn.primary {
     background: #007bff;
     color: white;
     border-color: #007bff;
 }
 
-.canvas-wrapper {
-    position: relative;
-    display: inline-block;
-    margin: 0 auto;
+.action-btn.primary:hover {
+    background: #0056b3;
+    border-color: #0056b3;
 }
 
-.canvas-container {
-    background: white;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    display: flex;
-    justify-content: center;
-    align-items: center;
+/* Canvas Area */
+.canvas-area {
+    position: fixed;
+    left: 280px;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    transition: left 0.3s ease;
+    overflow: hidden;
+}
+
+.sidebar.collapsed + .canvas-area {
+    left: 40px;
 }
 
 #pixelCanvas {
-    border: 2px solid #333;
+    position: absolute;
+    top: 0;
+    left: 0;
     cursor: crosshair;
     image-rendering: pixelated;
-    display: block;
 }
 
-.resize-handle {
+#pixelCanvas.panning {
+    cursor: grab;
+}
+
+#pixelCanvas.panning:active {
+    cursor: grabbing;
+}
+
+/* Export Frame */
+.export-frame {
+    position: absolute;
+    border: 2px solid #007bff;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.3);
+    pointer-events: none;
+}
+
+.export-frame.active {
+    pointer-events: all;
+}
+
+.frame-handle {
     position: absolute;
     background: #007bff;
-    opacity: 0.3;
-    transition: opacity 0.2s;
-    z-index: 10;
+    border: 2px solid white;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
 }
 
-.resize-handle:hover {
-    opacity: 0.6;
+.frame-handle:hover {
+    background: #0056b3;
 }
 
-.resize-handle-top {
-    top: 0;
-    left: 0;
-    right: 0;
+/* Edge handles */
+.frame-handle-top {
+    top: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
     height: 8px;
     cursor: ns-resize;
 }
 
-.resize-handle-right {
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 8px;
-    cursor: ew-resize;
-}
-
-.resize-handle-bottom {
-    bottom: 0;
-    left: 0;
-    right: 0;
+.frame-handle-bottom {
+    bottom: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
     height: 8px;
     cursor: ns-resize;
 }
 
-.resize-handle-left {
+.frame-handle-left {
+    left: -4px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 40px;
+    cursor: ew-resize;
+}
+
+.frame-handle-right {
+    right: -4px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 40px;
+    cursor: ew-resize;
+}
+
+/* Corner handles */
+.frame-handle-tl {
+    top: -4px;
+    left: -4px;
+    width: 12px;
+    height: 12px;
+    cursor: nwse-resize;
+}
+
+.frame-handle-tr {
+    top: -4px;
+    right: -4px;
+    width: 12px;
+    height: 12px;
+    cursor: nesw-resize;
+}
+
+.frame-handle-bl {
+    bottom: -4px;
+    left: -4px;
+    width: 12px;
+    height: 12px;
+    cursor: nesw-resize;
+}
+
+.frame-handle-br {
+    bottom: -4px;
+    right: -4px;
+    width: 12px;
+    height: 12px;
+    cursor: nwse-resize;
+}
+
+.frame-content {
+    position: absolute;
     top: 0;
     left: 0;
+    right: 0;
     bottom: 0;
-    width: 8px;
-    cursor: ew-resize;
+    cursor: move;
 }
