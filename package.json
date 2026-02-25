@@ -1,6 +1,6 @@
 {
   "name": "pixelart-editor",
-  "version": "0.0.19",
+  "version": "0.0.20",
   "description": "A pixel art editor for creating chibi-style characters",
   "main": "index.html",
   "scripts": {
