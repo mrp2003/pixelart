@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.20](https://github.com/mrp2003/pixelart/compare/v0.0.19...v0.0.20) (2026-02-25)
+
+
+### Features
+
+* **ui:** centralize colors with CSS variables, center template on load, remove sidebar dividers ([638204e](https://github.com/mrp2003/pixelart/commit/638204e2fc6e67eb5e1b413a78bea95cc6ef0285))
+
 ### [0.0.19](https://github.com/mrp2003/pixelart/compare/v0.0.18...v0.0.19) (2026-02-25)
 
 
