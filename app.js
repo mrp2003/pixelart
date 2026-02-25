@@ -8,8 +8,10 @@ class PixelArtEditor {
         this.currentTool = 'pen';
         this.currentColor = '#000000';
         this.isDrawing = false;
+        this.showTemplate = true;
         
         this.grid = [];
+        this.template = this.loadTemplate();
         
         this.initializeGrid();
         this.setupCanvas();
@@ -21,6 +23,31 @@ class PixelArtEditor {
         this.grid = Array(this.gridHeight).fill(null).map(() => 
             Array(this.gridWidth).fill(null)
         );
+    }
+    
+    loadTemplate() {
+        const templateData = {
+            head: [
+                [6,0], [5,0], [4,0], [3,1], [2,1], [1,2], [0,3], [0,4], [0,5], [0,6], 
+                [0,7], [0,8], [0,9], [1,10], [2,11], [3,11], [4,12], [5,12], [6,12], 
+                [6,2], [6,10], [5,3], [5,4], [5,5], [5,6], [5,7], [5,8], [5,9]
+            ],
+            face: [
+                [9,1], [8,1], [7,1], [10,2], [11,3], [11,4], [11,5], [11,6], [11,7], 
+                [11,8], [11,9], [10,10], [9,11], [8,11], [7,11], [9,4], [8,4], [7,4], 
+                [9,8], [8,8], [7,8]
+            ],
+            arms: [
+                [12,4], [12,8], [13,3], [13,9], [14,2], [14,10], [15,1], [15,11], 
+                [15,3], [15,4], [15,8], [15,9], [16,2], [16,10]
+            ],
+            legs: [
+                [16,4], [17,4], [18,4], [16,8], [17,8], [18,8], [17,6], [18,6], 
+                [19,5], [19,7]
+            ]
+        };
+        
+        return templateData;
     }
     
     setupCanvas() {
@@ -42,6 +69,7 @@ class PixelArtEditor {
         document.getElementById('clearBtn').addEventListener('click', () => this.clear());
         document.getElementById('exportBtn').addEventListener('click', () => this.exportPNG());
         document.getElementById('resizeBtn').addEventListener('click', () => this.resizeGrid());
+        document.getElementById('toggleTemplateBtn').addEventListener('click', () => this.toggleTemplate());
         
         // Canvas mouse events
         this.canvas.addEventListener('mousedown', (e) => this.startDrawing(e));
@@ -108,6 +136,11 @@ class PixelArtEditor {
     render() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         
+        // Draw template layer (if enabled)
+        if (this.showTemplate) {
+            this.renderTemplate();
+        }
+        
         // Draw grid lines
         this.ctx.strokeStyle = '#e0e0e0';
         this.ctx.lineWidth = 1;
@@ -140,6 +173,30 @@ class PixelArtEditor {
                 }
             }
         }
+    }
+    
+    renderTemplate() {
+        this.ctx.fillStyle = 'rgba(200, 200, 200, 0.4)';
+        
+        Object.values(this.template).forEach(part => {
+            part.forEach(([row, col]) => {
+                if (row < this.gridHeight && col < this.gridWidth) {
+                    this.ctx.fillRect(
+                        col * this.pixelSize + 1,
+                        row * this.pixelSize + 1,
+                        this.pixelSize - 2,
+                        this.pixelSize - 2
+                    );
+                }
+            });
+        });
+    }
+    
+    toggleTemplate() {
+        this.showTemplate = !this.showTemplate;
+        const btn = document.getElementById('toggleTemplateBtn');
+        btn.textContent = this.showTemplate ? 'Hide Template' : 'Show Template';
+        this.render();
     }
     
     clear() {
