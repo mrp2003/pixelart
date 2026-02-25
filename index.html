@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixel Art Editor</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Pixel Art Editor</h1>
+        </header>
+
+        <div class="toolbar">
+            <div class="tool-group">
+                <button id="penTool" class="tool-btn active" title="Pen (P)">
+                    <svg width="20" height="20" viewBox="0 0 20 20">
+                        <path d="M15 3l2 2-10 10H5v-2L15 3z" fill="currentColor"/>
+                    </svg>
+                </button>
+                <button id="eraserTool" class="tool-btn" title="Eraser (E)">
+                    <svg width="20" height="20" viewBox="0 0 20 20">
+                        <rect x="3" y="10" width="14" height="6" fill="currentColor"/>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="tool-group">
+                <label for="colorPicker">Color:</label>
+                <input type="color" id="colorPicker" value="#000000">
+            </div>
+
+            <div class="tool-group">
+                <button id="clearBtn" class="action-btn">Clear</button>
+                <button id="exportBtn" class="action-btn">Export PNG</button>
+            </div>
+        </div>
+
+        <div class="canvas-container">
+            <canvas id="pixelCanvas"></canvas>
+        </div>
+
+        <div class="grid-controls">
+            <label>
+                Width: <input type="number" id="gridWidth" value="13" min="1" max="100">
+            </label>
+            <label>
+                Height: <input type="number" id="gridHeight" value="20" min="1" max="100">
+            </label>
+            <button id="resizeBtn" class="action-btn">Resize Grid</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
