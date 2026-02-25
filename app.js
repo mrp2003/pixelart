@@ -8,7 +8,7 @@ class PixelArtEditor {
         this.currentTool = 'pen';
         this.currentColor = '#000000';
         this.isDrawing = false;
-        this.showTemplate = true;
+        this.showTemplate = false;
         this.showGrid = false;
         
         this.grid = [];
@@ -20,10 +20,24 @@ class PixelArtEditor {
         this.render();
     }
     
-    initializeGrid() {
+    initializeGrid(applyTemplate = true) {
         this.grid = Array(this.gridHeight).fill(null).map(() => 
             Array(this.gridWidth).fill(null)
         );
+        
+        if (applyTemplate && this.template) {
+            this.applyTemplateToGrid();
+        }
+    }
+    
+    applyTemplateToGrid() {
+        Object.values(this.template).forEach(part => {
+            part.forEach(([row, col]) => {
+                if (row < this.gridHeight && col < this.gridWidth) {
+                    this.grid[row][col] = '#000000';
+                }
+            });
+        });
     }
     
     loadTemplate() {
