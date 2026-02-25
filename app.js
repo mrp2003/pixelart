@@ -13,10 +13,13 @@ class PixelArtEditor {
         
         this.grid = [];
         this.template = this.loadTemplate();
+        this.history = [];
+        this.historyIndex = -1;
         
         this.initializeGrid();
         this.setupCanvas();
         this.setupEventListeners();
+        this.saveHistory();
         this.render();
     }
     
@@ -87,6 +90,8 @@ class PixelArtEditor {
         document.getElementById('toggleTemplateBtn').addEventListener('click', () => this.toggleTemplate());
         document.getElementById('toggleGridBtn').addEventListener('click', () => this.toggleGrid());
         document.getElementById('applyTemplateBtn').addEventListener('click', () => this.applyTemplate());
+        document.getElementById('undoBtn').addEventListener('click', () => this.undo());
+        document.getElementById('redoBtn').addEventListener('click', () => this.redo());
         
         // Canvas mouse events
         this.canvas.addEventListener('mousedown', (e) => this.startDrawing(e));
@@ -98,6 +103,16 @@ class PixelArtEditor {
         document.addEventListener('keydown', (e) => {
             if (e.key === 'p' || e.key === 'P') this.setTool('pen');
             if (e.key === 'e' || e.key === 'E') this.setTool('eraser');
+            
+            if (e.ctrlKey && e.key === 'z') {
+                e.preventDefault();
+                this.undo();
+            }
+            
+            if (e.ctrlKey && e.key === 'y') {
+                e.preventDefault();
+                this.redo();
+            }
         });
     }
     
@@ -147,7 +162,10 @@ class PixelArtEditor {
     }
     
     stopDrawing() {
-        this.isDrawing = false;
+        if (this.isDrawing) {
+            this.isDrawing = false;
+            this.saveHistory();
+        }
     }
     
     render() {
@@ -232,12 +250,43 @@ class PixelArtEditor {
     
     applyTemplate() {
         this.applyTemplateToGrid();
+        this.saveHistory();
         this.render();
+    }
+    
+    saveHistory() {
+        const gridCopy = this.grid.map(row => [...row]);
+        
+        this.history = this.history.slice(0, this.historyIndex + 1);
+        this.history.push(gridCopy);
+        this.historyIndex++;
+        
+        if (this.history.length > 50) {
+            this.history.shift();
+            this.historyIndex--;
+        }
+    }
+    
+    undo() {
+        if (this.historyIndex > 0) {
+            this.historyIndex--;
+            this.grid = this.history[this.historyIndex].map(row => [...row]);
+            this.render();
+        }
+    }
+    
+    redo() {
+        if (this.historyIndex < this.history.length - 1) {
+            this.historyIndex++;
+            this.grid = this.history[this.historyIndex].map(row => [...row]);
+            this.render();
+        }
     }
     
     clear() {
         if (confirm('Clear the entire canvas?')) {
             this.initializeGrid();
+            this.saveHistory();
             this.render();
         }
     }
@@ -256,6 +305,7 @@ class PixelArtEditor {
         
         this.initializeGrid();
         this.setupCanvas();
+        this.saveHistory();
         this.render();
     }
     
