@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.9](https://github.com/mrp2003/pixelart/compare/v0.0.8...v0.0.9) (2026-02-25)
+
+
+### Features
+
+* **ui:** replace all SVG icons with Flaticon icon font library ([abf0ba6](https://github.com/mrp2003/pixelart/commit/abf0ba61739ee4e84c1ef49047f85e9af3d6f21b))
+
 ### [0.0.8](https://github.com/mrp2003/pixelart/compare/v0.0.7...v0.0.8) (2026-02-25)
 
 
