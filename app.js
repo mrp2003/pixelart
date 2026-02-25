@@ -49,10 +49,14 @@ class PixelArtEditor {
         // Grid
         this.showGrid = false;
         
+        // Debounce timer for wheel zoom save
+        this.wheelZoomTimeout = null;
+        
         this.setupCanvas();
         this.setupEventListeners();
         this.initializeUI();
         this.centerCanvas();
+        this.loadFromLocalStorage();
         this.saveHistory();
         this.render();
     }
@@ -117,11 +121,19 @@ class PixelArtEditor {
             this.currentColor = e.target.value;
         });
         
+        document.getElementById('colorPicker').addEventListener('change', () => {
+            this.saveToLocalStorage();
+        });
+        
         // Zoom slider
         document.getElementById('zoomRange').addEventListener('input', (e) => {
             this.zoom = parseInt(e.target.value) / 100;
             document.getElementById('zoomLevel').value = e.target.value + '%';
             this.render();
+        });
+        
+        document.getElementById('zoomRange').addEventListener('change', () => {
+            this.saveToLocalStorage();
         });
         
         // Zoom level input
@@ -138,6 +150,7 @@ class PixelArtEditor {
             document.getElementById('zoomRange').value = value;
             document.getElementById('zoomLevel').value = value + '%';
             this.render();
+            this.saveToLocalStorage();
         });
         
         document.getElementById('zoomLevel').addEventListener('keydown', (e) => {
@@ -171,6 +184,8 @@ class PixelArtEditor {
         document.getElementById('toggleFrameBtn').addEventListener('click', () => this.toggleFrame());
         document.getElementById('toggleGridBtn').addEventListener('click', () => this.toggleGrid());
         document.getElementById('clearBtn').addEventListener('click', () => this.clear());
+        document.getElementById('saveBtn').addEventListener('click', () => this.exportProject());
+        document.getElementById('loadBtn').addEventListener('click', () => this.importProject());
         document.getElementById('exportBtn').addEventListener('click', () => this.exportPNG());
         
         // Canvas events
@@ -217,6 +232,12 @@ class PixelArtEditor {
             if (e.ctrlKey && e.key === 'y') {
                 e.preventDefault();
                 this.redo();
+            }
+            
+            // Save
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                this.exportProject();
             }
         });
     }
@@ -341,11 +362,18 @@ class PixelArtEditor {
             this.isDrawing = false;
             this.saveHistory();
         }
+        
+        const wasMovingFrame = this.isDraggingFrame || this.isResizingFrame;
+        
         this.isPanning = false;
         this.isDraggingFrame = false;
         this.isResizingFrame = false;
         this.resizeHandle = null;
         this.canvas.style.cursor = this.currentTool === 'pan' ? 'grab' : 'crosshair';
+        
+        if (wasMovingFrame) {
+            this.saveToLocalStorage();
+        }
     }
     
     handleWheel(e) {
@@ -353,9 +381,14 @@ class PixelArtEditor {
         const delta = e.deltaY > 0 ? -0.1 : 0.1;
         this.zoom = Math.max(0.5, Math.min(5, this.zoom + delta));
         const zoomPercent = Math.round(this.zoom * 100);
-        document.getElementById('zoomLevel').textContent = zoomPercent + '%';
+        document.getElementById('zoomLevel').value = zoomPercent + '%';
         document.getElementById('zoomRange').value = zoomPercent;
         this.render();
+        
+        clearTimeout(this.wheelZoomTimeout);
+        this.wheelZoomTimeout = setTimeout(() => {
+            this.saveToLocalStorage();
+        }, 500);
     }
     
     drawPixel(screenX, screenY) {
@@ -716,6 +749,7 @@ class PixelArtEditor {
         const icon = document.querySelector('#toggleFrameBtn i');
         icon.style.opacity = this.showFrame ? '1' : '0.3';
         this.render();
+        this.saveToLocalStorage();
     }
     
     toggleGrid() {
@@ -723,6 +757,7 @@ class PixelArtEditor {
         const icon = document.querySelector('#toggleGridBtn i');
         icon.style.opacity = this.showGrid ? '1' : '0.3';
         this.render();
+        this.saveToLocalStorage();
     }
     
     saveHistory() {
@@ -735,6 +770,8 @@ class PixelArtEditor {
             this.history.shift();
             this.historyIndex--;
         }
+        
+        this.saveToLocalStorage();
     }
     
     undo() {
@@ -757,6 +794,137 @@ class PixelArtEditor {
         this.pixels = {};
         this.saveHistory();
         this.render();
+    }
+    
+    saveToLocalStorage() {
+        const state = {
+            pixels: this.pixels,
+            frameX: this.frameX,
+            frameY: this.frameY,
+            frameWidth: this.frameWidth,
+            frameHeight: this.frameHeight,
+            showFrame: this.showFrame,
+            showGrid: this.showGrid,
+            zoom: this.zoom,
+            offsetX: this.offsetX,
+            offsetY: this.offsetY,
+            currentColor: this.currentColor
+        };
+        
+        try {
+            localStorage.setItem('pixelart_autosave', JSON.stringify(state));
+        } catch (e) {
+            console.error('Failed to save to localStorage:', e);
+        }
+    }
+    
+    loadFromLocalStorage() {
+        try {
+            const saved = localStorage.getItem('pixelart_autosave');
+            if (!saved) return;
+            
+            const state = JSON.parse(saved);
+            
+            this.pixels = state.pixels || {};
+            this.frameX = state.frameX ?? 0;
+            this.frameY = state.frameY ?? 0;
+            this.frameWidth = state.frameWidth ?? 13;
+            this.frameHeight = state.frameHeight ?? 20;
+            this.showFrame = state.showFrame ?? false;
+            this.showGrid = state.showGrid ?? false;
+            this.zoom = state.zoom ?? 1;
+            this.offsetX = state.offsetX ?? Math.floor(this.canvas.width / 2);
+            this.offsetY = state.offsetY ?? Math.floor(this.canvas.height / 2);
+            this.currentColor = state.currentColor ?? '#000000';
+            
+            document.getElementById('zoomRange').value = Math.round(this.zoom * 100);
+            document.getElementById('zoomLevel').value = Math.round(this.zoom * 100) + '%';
+            document.getElementById('colorPicker').value = this.currentColor;
+            
+            const gridIcon = document.querySelector('#toggleGridBtn i');
+            if (gridIcon) gridIcon.style.opacity = this.showGrid ? '1' : '0.3';
+            
+            const frameIcon = document.querySelector('#toggleFrameBtn i');
+            if (frameIcon) frameIcon.style.opacity = this.showFrame ? '1' : '0.3';
+        } catch (e) {
+            console.error('Failed to load from localStorage:', e);
+        }
+    }
+    
+    exportProject() {
+        const state = {
+            pixels: this.pixels,
+            frameX: this.frameX,
+            frameY: this.frameY,
+            frameWidth: this.frameWidth,
+            frameHeight: this.frameHeight,
+            showFrame: this.showFrame,
+            showGrid: this.showGrid,
+            zoom: this.zoom,
+            offsetX: this.offsetX,
+            offsetY: this.offsetY,
+            currentColor: this.currentColor,
+            version: '1.0.0'
+        };
+        
+        const json = JSON.stringify(state, null, 2);
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `pixelart_project_${Date.now()}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+    
+    importProject() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
+        
+        input.onchange = (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    const state = JSON.parse(event.target.result);
+                    
+                    this.pixels = state.pixels || {};
+                    this.frameX = state.frameX ?? 0;
+                    this.frameY = state.frameY ?? 0;
+                    this.frameWidth = state.frameWidth ?? 13;
+                    this.frameHeight = state.frameHeight ?? 20;
+                    this.showFrame = state.showFrame ?? false;
+                    this.showGrid = state.showGrid ?? false;
+                    this.zoom = state.zoom ?? 1;
+                    this.offsetX = state.offsetX ?? Math.floor(this.canvas.width / 2);
+                    this.offsetY = state.offsetY ?? Math.floor(this.canvas.height / 2);
+                    this.currentColor = state.currentColor ?? '#000000';
+                    
+                    document.getElementById('zoomRange').value = Math.round(this.zoom * 100);
+                    document.getElementById('zoomLevel').value = Math.round(this.zoom * 100) + '%';
+                    document.getElementById('colorPicker').value = this.currentColor;
+                    
+                    const gridIcon = document.querySelector('#toggleGridBtn i');
+                    if (gridIcon) gridIcon.style.opacity = this.showGrid ? '1' : '0.3';
+                    
+                    const frameIcon = document.querySelector('#toggleFrameBtn i');
+                    if (frameIcon) frameIcon.style.opacity = this.showFrame ? '1' : '0.3';
+                    
+                    this.saveHistory();
+                    this.render();
+                    this.saveToLocalStorage();
+                } catch (error) {
+                    alert('Failed to import project. Invalid file format.');
+                    console.error('Import error:', error);
+                }
+            };
+            reader.readAsText(file);
+        };
+        
+        input.click();
     }
     
     exportPNG() {
