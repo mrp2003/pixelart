@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.7](https://github.com/mrp2003/pixelart/compare/v0.0.6...v0.0.7) (2026-02-25)
+
+
+### Features
+
+* **ui:** redesign sidebar with icon-only 2x2 grids, template card, and bottom-right zoom slider ([f6db308](https://github.com/mrp2003/pixelart/commit/f6db3086a0a6742fd85ca2f1c8a4be463f85c496))
+
 ### [0.0.6](https://github.com/mrp2003/pixelart/compare/v0.0.5...v0.0.6) (2026-02-25)
 
 
