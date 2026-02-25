@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.14](https://github.com/mrp2003/pixelart/compare/v0.0.13...v0.0.14) (2026-02-25)
+
+
+### Bug Fixes
+
+* **ui:** remove confirmation dialog for clear all action ([fc3b967](https://github.com/mrp2003/pixelart/commit/fc3b967ba8564c88f99348472204faed51fa126b))
+
 ### [0.0.13](https://github.com/mrp2003/pixelart/compare/v0.0.12...v0.0.13) (2026-02-25)
 
 
