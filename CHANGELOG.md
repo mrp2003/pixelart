@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.10](https://github.com/mrp2003/pixelart/compare/v0.0.9...v0.0.10) (2026-02-25)
+
+
+### Features
+
+* **ui:** update grid icon to fi-rr-grid-alt and make it semi-transparent when grid is hidden ([96c2aca](https://github.com/mrp2003/pixelart/commit/96c2aca555e2c0d1f56ff2cf46054850b0aa912c))
+
 ### [0.0.9](https://github.com/mrp2003/pixelart/compare/v0.0.8...v0.0.9) (2026-02-25)
 
 
