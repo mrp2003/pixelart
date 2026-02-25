@@ -334,7 +334,7 @@ class PixelArtEditor {
         const endX = Math.floor((this.canvas.width - this.offsetX) / scale) + 1;
         const endY = Math.floor((this.canvas.height - this.offsetY) / scale) + 1;
         
-        this.ctx.fillStyle = '#1a1a1a';
+        this.ctx.fillStyle = '#ffffff';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }
     
@@ -345,7 +345,7 @@ class PixelArtEditor {
         const endX = Math.floor((this.canvas.width - this.offsetX) / scale) + 1;
         const endY = Math.floor((this.canvas.height - this.offsetY) / scale) + 1;
         
-        this.ctx.strokeStyle = '#333';
+        this.ctx.strokeStyle = '#e0e0e0';
         this.ctx.lineWidth = 1;
         
         // Vertical lines
