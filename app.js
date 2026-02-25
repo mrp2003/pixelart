@@ -161,6 +161,7 @@ class PixelArtEditor {
         
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
+            // Tools
             if (e.key === 'p' || e.key === 'P') this.setTool('pen');
             if (e.key === 'e' || e.key === 'E') this.setTool('eraser');
             if (e.key === ' ') {
@@ -168,6 +169,25 @@ class PixelArtEditor {
                 this.setTool('pan');
             }
             
+            // Template
+            if (e.key === 't' || e.key === 'T') {
+                e.preventDefault();
+                this.openTemplateModal();
+            }
+            
+            // Grid
+            if (e.key === 'g' || e.key === 'G') {
+                e.preventDefault();
+                this.toggleGrid();
+            }
+            
+            // Export Frame
+            if (e.key === 'f' || e.key === 'F') {
+                e.preventDefault();
+                this.toggleFrame();
+            }
+            
+            // Undo/Redo
             if (e.ctrlKey && e.key === 'z') {
                 e.preventDefault();
                 this.undo();
