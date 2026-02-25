@@ -612,8 +612,12 @@ class PixelArtEditor {
     
     toggleTemplate() {
         this.showTemplate = !this.showTemplate;
-        const btn = document.getElementById('toggleTemplateBtn');
-        btn.textContent = this.showTemplate ? 'Hide Template' : 'Show Template';
+        const icon = document.querySelector('#toggleTemplateBtn i');
+        if (this.showTemplate) {
+            icon.className = 'fi fi-rs-eye';
+        } else {
+            icon.className = 'fi fi-rs-crossed-eye';
+        }
         this.render();
     }
     

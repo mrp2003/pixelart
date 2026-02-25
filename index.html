@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pixel Art Editor</title>
+    <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css'>
+    <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-straight/css/uicons-regular-straight.css'>
+    <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.6.0/uicons-thin-rounded/css/uicons-thin-rounded.css'>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -20,29 +23,17 @@
                 <h3>Tools</h3>
                 <div class="icon-grid">
                     <button id="penTool" class="icon-btn active" title="Pen (P)">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M18.4 2.1c-1.1-1.1-2.9-1.1-4 0L3 13.5V20h6.5L21 8.5c1.1-1.1 1.1-2.9 0-4l-2.6-2.4zM6.5 18H5v-1.5l9.5-9.5 1.5 1.5L6.5 18z"/>
-                        </svg>
+                        <i class="fi fi-rr-pen-clip"></i>
                     </button>
                     <button id="eraserTool" class="icon-btn" title="Eraser (E)">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M16.24 3.56l4.95 4.94c.78.79.78 2.05 0 2.84L12 20.53a4.008 4.008 0 0 1-5.66 0L2.81 17c-.78-.79-.78-2.05 0-2.84l10.6-10.6c.79-.78 2.05-.78 2.83 0M4.22 15.58l3.54 3.53c.78.79 2.04.79 2.83 0l3.53-3.53-6.36-6.36-3.54 3.54c-.78.78-.78 2.05 0 2.82"/>
-                        </svg>
+                        <i class="fi fi-rs-eraser"></i>
                     </button>
                     <button id="colorTool" class="icon-btn color-btn" title="Color Picker">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 22C6.49 22 2 17.51 2 12S6.49 2 12 2s10 4.04 10 9c0 3.31-2.69 6-6 6h-1.77c-.28 0-.5.22-.5.5 0 .12.05.23.13.33.41.47.64 1.06.64 1.67 0 1.38-1.12 2.5-2.5 2.5zm0-18c-4.41 0-8 3.59-8 8s3.59 8 8 8c.28 0 .5-.22.5-.5 0-.16-.08-.28-.14-.35-.41-.46-.63-1.05-.63-1.65 0-1.38 1.12-2.5 2.5-2.5H16c2.21 0 4-1.79 4-4 0-3.86-3.59-7-8-7z"/>
-                            <circle cx="6.5" cy="11.5" r="1.5"/>
-                            <circle cx="9.5" cy="7.5" r="1.5"/>
-                            <circle cx="14.5" cy="7.5" r="1.5"/>
-                            <circle cx="17.5" cy="11.5" r="1.5"/>
-                        </svg>
+                        <i class="fi fi-rs-fill"></i>
                         <input type="color" id="colorPicker" value="#000000">
                     </button>
                     <button id="panTool" class="icon-btn" title="Pan (Space)">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M13 11V6c0-1.1.9-2 2-2s2 .9 2 2v5h2V6c0-2.2-1.8-4-4-4s-4 1.8-4 4v5c0-2.2-1.8-4-4-4s-4 1.8-4 4v9h2v-9c0-1.1.9-2 2-2s2 .9 2 2v3h2v-3h2v10h2V11h-2z"/>
-                        </svg>
+                        <i class="fi fi-rs-compress-alt"></i>
                     </button>
                 </div>
             </div>
@@ -56,14 +47,10 @@
                     </div>
                     <div class="template-actions">
                         <button id="toggleTemplateBtn" class="template-action-btn" title="Show/Hide Template">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
-                            </svg>
+                            <i class="fi fi-rs-eye"></i>
                         </button>
                         <button id="applyTemplateBtn" class="template-action-btn" title="Apply Template">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-                            </svg>
+                            <i class="fi fi-rs-check"></i>
                         </button>
                     </div>
                 </div>
@@ -74,25 +61,16 @@
                 <h3>Actions</h3>
                 <div class="icon-grid">
                     <button id="toggleGridBtn" class="icon-btn" title="Show/Hide Grid">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M10 10v4H7v-4h3m0-2H7c-1.1 0-2 .9-2 2v4c0 1.1.9 2 2 2h3c1.1 0 2-.9 2-2v-4c0-1.1-.9-2-2-2zm7 0h-3c-1.1 0-2 .9-2 2v4c0 1.1.9 2 2 2h3c1.1 0 2-.9 2-2v-4c0-1.1-.9-2-2-2zm0 6h-3v-4h3v4z"/>
-                        </svg>
+                        <i class="fi fi-tr-grid-alt"></i>
                     </button>
                     <button id="clearBtn" class="icon-btn" title="Clear All">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M6 6h12v12H6z"/>
-                        </svg>
+                        <i class="fi fi-rs-trash-empty"></i>
                     </button>
                     <button id="toggleFrameBtn" class="icon-btn" title="Show/Hide Export Frame">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M21 3H3v18h18V3zM5 5h14v14H5V5z"/>
-                            <path d="M7 7h10v10H7z" fill="none" stroke="currentColor" stroke-width="1.5"/>
-                        </svg>
+                        <i class="fi fi-rs-tool-crop"></i>
                     </button>
                     <button id="exportBtn" class="icon-btn primary" title="Export PNG">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
-                        </svg>
+                        <i class="fi fi-rs-download"></i>
                     </button>
                 </div>
             </div>

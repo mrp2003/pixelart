@@ -129,9 +129,8 @@ body {
     border-color: #0056b3;
 }
 
-.icon-btn svg {
-    width: 24px;
-    height: 24px;
+.icon-btn i {
+    font-size: 24px;
 }
 
 /* Color Tool Button */
@@ -212,9 +211,10 @@ body {
     transform: scale(1.05);
 }
 
-.template-action-btn svg {
+.template-action-btn i {
+    font-size: 20px;
     color: white;
-    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 /* Canvas Area */
