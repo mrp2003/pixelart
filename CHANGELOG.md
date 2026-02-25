@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.3](https://github.com/mrp2003/pixelart/compare/v0.0.2...v0.0.3) (2026-02-25)
+
+
+### Features
+
+* **history:** add undo/redo functionality with Ctrl+Z and Ctrl+Y shortcuts ([f0135e8](https://github.com/mrp2003/pixelart/commit/f0135e8f82770fa1238f83db8dc2a61ba49bc4a6))
+* **template:** add Apply Template button and revert to blank canvas on load ([3d21335](https://github.com/mrp2003/pixelart/commit/3d21335ad9935d2283f406b6057b04888f72cbe7))
+
 ### [0.0.2](https://github.com/mrp2003/pixelart/compare/v0.0.1...v0.0.2) (2026-02-25)
 
 
