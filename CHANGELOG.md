@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.2](https://github.com/mrp2003/pixelart/compare/v0.0.1...v0.0.2) (2026-02-25)
+
+
+### Features
+
+* **grid:** add grid toggle with border-to-border pixels when hidden ([23fddad](https://github.com/mrp2003/pixelart/commit/23fddad69992d89a89dc41eb67d3d4cf1ae9e986))
+* **template:** load template pixels into grid by default on page load ([dfe403e](https://github.com/mrp2003/pixelart/commit/dfe403edefa123143186ab1a2aab0d0cc05f2d5c))
+
+
+### Bug Fixes
+
+* **template:** change template color from faded gray to solid black ([0d958c5](https://github.com/mrp2003/pixelart/commit/0d958c59a152f5379360a11229a474245b3cccb6))
+
 ### [0.0.1](https://github.com/mrp2003/pixelart/compare/v0.0.0...v0.0.1) (2026-02-25)
 
 
