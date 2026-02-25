@@ -683,11 +683,9 @@ class PixelArtEditor {
     }
     
     clear() {
-        if (confirm('Clear all pixels?')) {
-            this.pixels = {};
-            this.saveHistory();
-            this.render();
-        }
+        this.pixels = {};
+        this.saveHistory();
+        this.render();
     }
     
     exportPNG() {
