@@ -69,7 +69,7 @@ class PixelArtEditor {
     
     setupCanvas() {
         const resizeCanvas = () => {
-            this.canvas.width = window.innerWidth - 280;
+            this.canvas.width = window.innerWidth - 70;
             this.canvas.height = window.innerHeight;
             this.render();
         };
@@ -124,9 +124,29 @@ class PixelArtEditor {
             this.render();
         });
         
+        // Template button
+        document.getElementById('templateBtn').addEventListener('click', () => this.openTemplateModal());
+        
+        // Modal
+        document.getElementById('modalClose').addEventListener('click', () => this.closeTemplateModal());
+        document.querySelector('.modal-overlay').addEventListener('click', () => this.closeTemplateModal());
+        
+        // Template actions in modal
+        document.querySelectorAll('.toggle-template').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.toggleTemplate();
+            });
+        });
+        document.querySelectorAll('.apply-template').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.applyTemplate();
+                this.closeTemplateModal();
+            });
+        });
+        
         // Action buttons
-        document.getElementById('toggleTemplateBtn').addEventListener('click', () => this.toggleTemplate());
-        document.getElementById('applyTemplateBtn').addEventListener('click', () => this.applyTemplate());
         document.getElementById('toggleFrameBtn').addEventListener('click', () => this.toggleFrame());
         document.getElementById('toggleGridBtn').addEventListener('click', () => this.toggleGrid());
         document.getElementById('clearBtn').addEventListener('click', () => this.clear());
@@ -616,14 +636,24 @@ class PixelArtEditor {
         this.render();
     }
     
+    openTemplateModal() {
+        document.getElementById('templateModal').classList.add('active');
+    }
+    
+    closeTemplateModal() {
+        document.getElementById('templateModal').classList.remove('active');
+    }
+    
     toggleTemplate() {
         this.showTemplate = !this.showTemplate;
-        const icon = document.querySelector('#toggleTemplateBtn i');
-        if (this.showTemplate) {
-            icon.className = 'fi fi-rs-eye';
-        } else {
-            icon.className = 'fi fi-rs-crossed-eye';
-        }
+        const icons = document.querySelectorAll('.toggle-template i');
+        icons.forEach(icon => {
+            if (this.showTemplate) {
+                icon.className = 'fi fi-rs-eye';
+            } else {
+                icon.className = 'fi fi-rs-crossed-eye';
+            }
+        });
         this.render();
     }
     
