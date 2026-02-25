@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.5](https://github.com/mrp2003/pixelart/compare/v0.0.4...v0.0.5) (2026-02-25)
+
+
+### Features
+
+* **infinite-canvas:** complete rewrite with infinite grid, collapsible sidebar, pan/zoom, and draggable export frame ([64b3705](https://github.com/mrp2003/pixelart/commit/64b370591a8d96011de0110655b1b3e9ff1804a0))
+
 ### [0.0.4](https://github.com/mrp2003/pixelart/compare/v0.0.3...v0.0.4) (2026-02-25)
 
 
