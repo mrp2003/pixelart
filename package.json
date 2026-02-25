@@ -1,12 +1,16 @@
 {
   "name": "pixelart-editor",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "description": "A pixel art editor for creating chibi-style characters",
   "main": "index.html",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "release": "standard-version",
+    "release:minor": "standard-version --release-as minor",
+    "release:major": "standard-version --release-as major",
+    "release:patch": "standard-version --release-as patch"
   },
   "keywords": [
     "pixel-art",
@@ -16,6 +20,7 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
+    "standard-version": "^9.5.0",
     "vite": "^5.0.0"
   }
 }
