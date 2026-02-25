@@ -8,7 +8,7 @@ class PixelArtEditor {
         this.currentTool = 'pen';
         this.currentColor = '#000000';
         this.isDrawing = false;
-        this.showTemplate = false;
+        this.showTemplate = true;
         this.showGrid = false;
         
         this.grid = [];
@@ -20,7 +20,7 @@ class PixelArtEditor {
         this.render();
     }
     
-    initializeGrid(applyTemplate = true) {
+    initializeGrid(applyTemplate = false) {
         this.grid = Array(this.gridHeight).fill(null).map(() => 
             Array(this.gridWidth).fill(null)
         );
@@ -86,6 +86,7 @@ class PixelArtEditor {
         document.getElementById('resizeBtn').addEventListener('click', () => this.resizeGrid());
         document.getElementById('toggleTemplateBtn').addEventListener('click', () => this.toggleTemplate());
         document.getElementById('toggleGridBtn').addEventListener('click', () => this.toggleGrid());
+        document.getElementById('applyTemplateBtn').addEventListener('click', () => this.applyTemplate());
         
         // Canvas mouse events
         this.canvas.addEventListener('mousedown', (e) => this.startDrawing(e));
@@ -197,7 +198,7 @@ class PixelArtEditor {
     }
     
     renderTemplate() {
-        this.ctx.fillStyle = '#000000';
+        this.ctx.fillStyle = 'rgba(200, 200, 200, 0.4)';
         const padding = this.showGrid ? 1 : 0;
         const size = this.showGrid ? this.pixelSize - 2 : this.pixelSize;
         
@@ -226,6 +227,11 @@ class PixelArtEditor {
         this.showGrid = !this.showGrid;
         const btn = document.getElementById('toggleGridBtn');
         btn.textContent = this.showGrid ? 'Hide Grid' : 'Show Grid';
+        this.render();
+    }
+    
+    applyTemplate() {
+        this.applyTemplateToGrid();
         this.render();
     }
     
