@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.3](https://github.com/mrp2003/pixelart/compare/v1.1.2...v1.1.3) (2026-02-25)
+
+
+### Bug Fixes
+
+* **color:** add color validation to prevent NaN in RGB values ([32291d0](https://github.com/mrp2003/pixelart/commit/32291d04988da8282f4271932a4bc3d28532ba2d)), closes [#000000](https://github.com/mrp2003/pixelart/issues/000000)
+
 ### [1.1.2](https://github.com/mrp2003/pixelart/compare/v1.1.1...v1.1.2) (2026-02-25)
 
 
