@@ -284,6 +284,10 @@ class PixelArtEditor {
     }
     
     setColor(color) {
+        if (!color || typeof color !== 'string' || !color.match(/^#[0-9A-Fa-f]{6}$/)) {
+            console.warn('Invalid color:', color);
+            color = '#000000';
+        }
         this.currentColor = color;
         document.getElementById('colorPicker').value = color;
         this.updateColorIndicator();
