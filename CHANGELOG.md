@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.15](https://github.com/mrp2003/pixelart/compare/v0.0.14...v0.0.15) (2026-02-25)
+
+
+### Features
+
+* **ui:** redesign sidebar as narrow vertical icon column with logo and add template modal ([6f46984](https://github.com/mrp2003/pixelart/commit/6f4698445e1cb1d02eff9f3bfa68e5cebaf777a6))
+
 ### [0.0.14](https://github.com/mrp2003/pixelart/compare/v0.0.13...v0.0.14) (2026-02-25)
 
 
