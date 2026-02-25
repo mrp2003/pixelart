@@ -86,12 +86,14 @@ class PixelArtEditor {
         // Action buttons
         document.getElementById('clearBtn').addEventListener('click', () => this.clear());
         document.getElementById('exportBtn').addEventListener('click', () => this.exportPNG());
-        document.getElementById('resizeBtn').addEventListener('click', () => this.resizeGrid());
         document.getElementById('toggleTemplateBtn').addEventListener('click', () => this.toggleTemplate());
         document.getElementById('toggleGridBtn').addEventListener('click', () => this.toggleGrid());
         document.getElementById('applyTemplateBtn').addEventListener('click', () => this.applyTemplate());
         document.getElementById('undoBtn').addEventListener('click', () => this.undo());
         document.getElementById('redoBtn').addEventListener('click', () => this.redo());
+        
+        // Resize handles
+        this.setupResizeHandles();
         
         // Canvas mouse events
         this.canvas.addEventListener('mousedown', (e) => this.startDrawing(e));
@@ -291,21 +293,156 @@ class PixelArtEditor {
         }
     }
     
-    resizeGrid() {
-        const newWidth = parseInt(document.getElementById('gridWidth').value);
-        const newHeight = parseInt(document.getElementById('gridHeight').value);
+    setupResizeHandles() {
+        const handles = {
+            top: document.querySelector('.resize-handle-top'),
+            right: document.querySelector('.resize-handle-right'),
+            bottom: document.querySelector('.resize-handle-bottom'),
+            left: document.querySelector('.resize-handle-left')
+        };
         
-        if (newWidth < 1 || newHeight < 1 || newWidth > 100 || newHeight > 100) {
-            alert('Grid dimensions must be between 1 and 100');
-            return;
+        let isDragging = false;
+        let dragHandle = null;
+        let startY = 0;
+        let startX = 0;
+        
+        const startDrag = (e, handle) => {
+            isDragging = true;
+            dragHandle = handle;
+            startY = e.clientY;
+            startX = e.clientX;
+            e.preventDefault();
+        };
+        
+        const onDrag = (e) => {
+            if (!isDragging) return;
+            
+            const deltaY = Math.floor((e.clientY - startY) / this.pixelSize);
+            const deltaX = Math.floor((e.clientX - startX) / this.pixelSize);
+            
+            if (deltaY === 0 && deltaX === 0) return;
+            
+            if (dragHandle === 'bottom' && deltaY !== 0) {
+                this.resizeBottom(deltaY);
+                startY = e.clientY;
+            } else if (dragHandle === 'top' && deltaY !== 0) {
+                this.resizeTop(deltaY);
+                startY = e.clientY;
+            } else if (dragHandle === 'right' && deltaX !== 0) {
+                this.resizeRight(deltaX);
+                startX = e.clientX;
+            } else if (dragHandle === 'left' && deltaX !== 0) {
+                this.resizeLeft(deltaX);
+                startX = e.clientX;
+            }
+        };
+        
+        const stopDrag = () => {
+            if (isDragging) {
+                isDragging = false;
+                dragHandle = null;
+                this.saveHistory();
+            }
+        };
+        
+        handles.top.addEventListener('mousedown', (e) => startDrag(e, 'top'));
+        handles.right.addEventListener('mousedown', (e) => startDrag(e, 'right'));
+        handles.bottom.addEventListener('mousedown', (e) => startDrag(e, 'bottom'));
+        handles.left.addEventListener('mousedown', (e) => startDrag(e, 'left'));
+        
+        document.addEventListener('mousemove', onDrag);
+        document.addEventListener('mouseup', stopDrag);
+    }
+    
+    resizeBottom(delta) {
+        const newHeight = Math.max(1, this.gridHeight + delta);
+        if (newHeight === this.gridHeight) return;
+        
+        const oldGrid = this.grid.map(row => [...row]);
+        
+        this.gridHeight = newHeight;
+        this.grid = Array(this.gridHeight).fill(null).map(() => 
+            Array(this.gridWidth).fill(null)
+        );
+        
+        for (let y = 0; y < Math.min(oldGrid.length, this.gridHeight); y++) {
+            for (let x = 0; x < this.gridWidth; x++) {
+                this.grid[y][x] = oldGrid[y][x];
+            }
         }
         
-        this.gridWidth = newWidth;
-        this.gridHeight = newHeight;
-        
-        this.initializeGrid();
         this.setupCanvas();
-        this.saveHistory();
+        this.render();
+    }
+    
+    resizeTop(delta) {
+        const newHeight = Math.max(1, this.gridHeight - delta);
+        if (newHeight === this.gridHeight) return;
+        
+        const oldGrid = this.grid.map(row => [...row]);
+        const rowsAdded = newHeight - this.gridHeight;
+        
+        this.gridHeight = newHeight;
+        this.grid = Array(this.gridHeight).fill(null).map(() => 
+            Array(this.gridWidth).fill(null)
+        );
+        
+        const startRow = rowsAdded > 0 ? rowsAdded : 0;
+        const oldStartRow = rowsAdded > 0 ? 0 : -rowsAdded;
+        
+        for (let y = 0; y < Math.min(oldGrid.length, this.gridHeight - startRow); y++) {
+            for (let x = 0; x < this.gridWidth; x++) {
+                this.grid[startRow + y][x] = oldGrid[oldStartRow + y][x];
+            }
+        }
+        
+        this.setupCanvas();
+        this.render();
+    }
+    
+    resizeRight(delta) {
+        const newWidth = Math.max(1, this.gridWidth + delta);
+        if (newWidth === this.gridWidth) return;
+        
+        const oldGrid = this.grid.map(row => [...row]);
+        
+        this.gridWidth = newWidth;
+        this.grid = Array(this.gridHeight).fill(null).map(() => 
+            Array(this.gridWidth).fill(null)
+        );
+        
+        for (let y = 0; y < this.gridHeight; y++) {
+            for (let x = 0; x < Math.min(oldGrid[0].length, this.gridWidth); x++) {
+                this.grid[y][x] = oldGrid[y][x];
+            }
+        }
+        
+        this.setupCanvas();
+        this.render();
+    }
+    
+    resizeLeft(delta) {
+        const newWidth = Math.max(1, this.gridWidth - delta);
+        if (newWidth === this.gridWidth) return;
+        
+        const oldGrid = this.grid.map(row => [...row]);
+        const colsAdded = newWidth - this.gridWidth;
+        
+        this.gridWidth = newWidth;
+        this.grid = Array(this.gridHeight).fill(null).map(() => 
+            Array(this.gridWidth).fill(null)
+        );
+        
+        const startCol = colsAdded > 0 ? colsAdded : 0;
+        const oldStartCol = colsAdded > 0 ? 0 : -colsAdded;
+        
+        for (let y = 0; y < this.gridHeight; y++) {
+            for (let x = 0; x < Math.min(oldGrid[0].length, this.gridWidth - startCol); x++) {
+                this.grid[y][startCol + x] = oldGrid[y][oldStartCol + x];
+            }
+        }
+        
+        this.setupCanvas();
         this.render();
     }
     
