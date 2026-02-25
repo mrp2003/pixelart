@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.13](https://github.com/mrp2003/pixelart/compare/v0.0.12...v0.0.13) (2026-02-25)
+
+
+### Bug Fixes
+
+* **ui:** completely remove boxes around icons - icons only design ([044c812](https://github.com/mrp2003/pixelart/commit/044c812184857c5ae434120c89d0d89f12b0aa70))
+
 ### [0.0.12](https://github.com/mrp2003/pixelart/compare/v0.0.11...v0.0.12) (2026-02-25)
 
 
