@@ -61,6 +61,10 @@ class PixelArtEditor {
         // Set initial grid icon opacity
         const gridIcon = document.querySelector('#toggleGridBtn i');
         gridIcon.style.opacity = this.showGrid ? '1' : '0.3';
+        
+        // Set initial frame icon opacity
+        const frameIcon = document.querySelector('#toggleFrameBtn i');
+        frameIcon.style.opacity = this.showFrame ? '1' : '0.3';
     }
     
     setupCanvas() {
@@ -167,7 +171,10 @@ class PixelArtEditor {
     setTool(tool) {
         this.currentTool = tool;
         
-        document.querySelectorAll('.tool-btn').forEach(btn => btn.classList.remove('active'));
+        // Remove active from all tool buttons
+        document.querySelectorAll('#penTool, #eraserTool, #panTool').forEach(btn => {
+            btn.classList.remove('active');
+        });
         
         if (tool === 'pen') {
             document.getElementById('penTool').classList.add('active');
@@ -643,8 +650,8 @@ class PixelArtEditor {
     
     toggleFrame() {
         this.showFrame = !this.showFrame;
-        const btn = document.getElementById('toggleFrameBtn');
-        btn.textContent = this.showFrame ? 'Hide Export Frame' : 'Show Export Frame';
+        const icon = document.querySelector('#toggleFrameBtn i');
+        icon.style.opacity = this.showFrame ? '1' : '0.3';
         this.render();
     }
     
