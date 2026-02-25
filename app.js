@@ -21,7 +21,7 @@ class PixelArtEditor {
         this.pixels = {};
         
         // Template
-        this.showTemplate = true;
+        this.showTemplate = false;
         this.template = this.loadTemplate();
         this.templateOffsetX = -6;  // Center horizontally (template width is ~13)
         this.templateOffsetY = -10; // Center vertically (template height is ~20)
@@ -120,15 +120,36 @@ class PixelArtEditor {
         // Zoom slider
         document.getElementById('zoomRange').addEventListener('input', (e) => {
             this.zoom = parseInt(e.target.value) / 100;
-            document.getElementById('zoomLevel').textContent = e.target.value + '%';
+            document.getElementById('zoomLevel').value = e.target.value + '%';
             this.render();
+        });
+        
+        // Zoom level input
+        document.getElementById('zoomLevel').addEventListener('change', (e) => {
+            let value = parseInt(e.target.value.replace('%', ''));
+            
+            if (isNaN(value)) {
+                value = 100;
+            }
+            
+            value = Math.max(50, Math.min(500, value));
+            
+            this.zoom = value / 100;
+            document.getElementById('zoomRange').value = value;
+            document.getElementById('zoomLevel').value = value + '%';
+            this.render();
+        });
+        
+        document.getElementById('zoomLevel').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.target.blur();
+            }
         });
         
         // Template button
         document.getElementById('templateBtn').addEventListener('click', () => this.openTemplateModal());
         
         // Modal
-        document.getElementById('modalClose').addEventListener('click', () => this.closeTemplateModal());
         document.querySelector('.modal-overlay').addEventListener('click', () => this.closeTemplateModal());
         
         // Template actions in modal
@@ -739,22 +760,54 @@ class PixelArtEditor {
     }
     
     exportPNG() {
+        const scale = 32;
+        let minX, maxX, minY, maxY, width, height, offsetX, offsetY;
+        
+        if (this.showFrame) {
+            minX = this.frameX;
+            minY = this.frameY;
+            width = this.frameWidth;
+            height = this.frameHeight;
+            offsetX = this.frameX;
+            offsetY = this.frameY;
+        } else {
+            const pixelCoords = Object.keys(this.pixels).map(key => {
+                const [x, y] = key.split(',').map(Number);
+                return { x, y };
+            });
+            
+            if (pixelCoords.length === 0) {
+                alert('No pixels to export!');
+                return;
+            }
+            
+            minX = Math.min(...pixelCoords.map(p => p.x));
+            maxX = Math.max(...pixelCoords.map(p => p.x));
+            minY = Math.min(...pixelCoords.map(p => p.y));
+            maxY = Math.max(...pixelCoords.map(p => p.y));
+            
+            width = maxX - minX + 1;
+            height = maxY - minY + 1;
+            offsetX = minX;
+            offsetY = minY;
+        }
+        
         const exportCanvas = document.createElement('canvas');
-        exportCanvas.width = this.frameWidth;
-        exportCanvas.height = this.frameHeight;
+        exportCanvas.width = width * scale;
+        exportCanvas.height = height * scale;
         const exportCtx = exportCanvas.getContext('2d');
         
         exportCtx.clearRect(0, 0, exportCanvas.width, exportCanvas.height);
         
-        for (let y = 0; y < this.frameHeight; y++) {
-            for (let x = 0; x < this.frameWidth; x++) {
-                const gridX = this.frameX + x;
-                const gridY = this.frameY + y;
+        for (let y = 0; y < height; y++) {
+            for (let x = 0; x < width; x++) {
+                const gridX = offsetX + x;
+                const gridY = offsetY + y;
                 const key = `${gridX},${gridY}`;
                 
                 if (this.pixels[key]) {
                     exportCtx.fillStyle = this.pixels[key];
-                    exportCtx.fillRect(x, y, 1, 1);
+                    exportCtx.fillRect(x * scale, y * scale, scale, scale);
                 }
             }
         }

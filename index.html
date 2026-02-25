@@ -52,23 +52,19 @@
     <div class="modal" id="templateModal">
         <div class="modal-overlay"></div>
         <div class="modal-content">
-            <button class="modal-close" id="modalClose">
-                <i class="fi fi-rr-cross"></i>
-            </button>
-            <h2>Select Template</h2>
             <div class="template-grid">
                 <div class="template-item" data-template="chibbi2d">
                     <div class="template-card">
-                        <div class="template-preview">
-                            <span class="template-name">Chibbi 2D</span>
+                        <div class="template-image">
+                            <img src="chibi-2d.png" alt="Chibbi 2D Template">
                         </div>
                         <div class="template-actions">
-                            <button class="template-action-btn toggle-template" title="Show/Hide Template">
+                            <div class="template-icon toggle-template" title="Show/Hide Template">
                                 <i class="fi fi-rs-eye"></i>
-                            </button>
-                            <button class="template-action-btn apply-template" title="Apply Template">
+                            </div>
+                            <div class="template-icon apply-template" title="Apply Template">
                                 <i class="fi fi-rs-check"></i>
-                            </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -84,7 +80,7 @@
     <!-- Zoom Slider -->
     <div class="zoom-slider" id="zoomSlider">
         <input type="range" id="zoomRange" min="50" max="500" value="100" step="25">
-        <span id="zoomLevel">100%</span>
+        <input type="text" id="zoomLevel" value="100%">
     </div>
 
     <script src="app.js"></script>
