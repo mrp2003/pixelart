@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.1.1](https://github.com/mrp2003/pixelart/compare/v1.1.0...v1.1.1) (2026-02-25)
+
+
+### Bug Fixes
+
+* **color:** redesign color picker as popup modal beside sidebar ([8b2af10](https://github.com/mrp2003/pixelart/commit/8b2af100ef84b8bdcf86864ed98fad0b82b55719))
+
 ## [1.1.0](https://github.com/mrp2003/pixelart/compare/v0.0.22...v1.1.0) (2026-02-25)
 
 
