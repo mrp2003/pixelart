@@ -23,8 +23,8 @@ class PixelArtEditor {
         // Template
         this.showTemplate = true;
         this.template = this.loadTemplate();
-        this.templateOffsetX = 0;
-        this.templateOffsetY = 0;
+        this.templateOffsetX = -6;  // Center horizontally (template width is ~13)
+        this.templateOffsetY = -10; // Center vertically (template height is ~20)
         
         // History
         this.history = [];
